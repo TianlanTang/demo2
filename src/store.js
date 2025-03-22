@@ -1,5 +1,16 @@
 import { create } from "zustand";
 
+const loadPatterns = async () => {
+    try {
+        const response = await fetch("/oneTilePatterns.json");
+        const data = await response.json();
+        return data.patterns;
+    } catch (error) {
+        console.error("Error loading patterns", error);
+        return [];
+    }
+};
+
 export const useStore = create((set, get) => ({ 
     // Layout state
 
@@ -62,7 +73,7 @@ export const useStore = create((set, get) => ({
     //Original grout width
     oGroutWidth: 25,
 
-    //Original tile size
+    //Original tile size, based on tile pattern
     oTileHeight: 300,
     oTileWidth: 600,
     
@@ -106,7 +117,6 @@ export const useStore = create((set, get) => ({
                 }
                 else {
                     x = col * (tileWidth + groutWidth) + startX + hSpacing;
-                    console.log("hSpacing", hSpacing);
                 }
 
                 if (col % 2 === 0) {
@@ -238,15 +248,35 @@ export const useStore = create((set, get) => ({
         return groutWidth;
     },
     
-    // set prameters
-    setTileWidth: (tileWidth) => {
-        set({ oTileWidth: tileWidth })
-        get().generateLayout();
+    // set tile pattern
+    setPattern: async (patternName, scaleIndex) => {
+        const patterns = await loadPatterns();
+
+        const pattern = patterns.find(p => p.name === patternName);
+
+        if (!pattern) {
+            console.error("Pattern not found", patternName);
+            return;
+        }
+
+        const tile = pattern.tiles[0];
+        const tileScale = pattern.tileScale[Number(scaleIndex)];
+
+        if (!tile || !tileScale) {
+            console.error("Pattern not found", patternName, scaleIndex);
+            return;
+        }
+
+        const [numerator, denominator] = tileScale;
+
+        set({
+            oTileWidth: tile.width * numerator / denominator,
+            oTileHeight: tile.height * numerator / denominator,
+        });
+        get().generateHorizonTalLayout();
     },
-    setTileHeight: (tileHeight) => {
-        set({ oTileHeight: tileHeight })
-        get().generateLayout();
-    },
+
+    // set other parameters
     setSurfaceWidth: (surfaceWidth) => {
         set({ oSurfaceWidth: surfaceWidth })
         get().generateLayout();
@@ -288,7 +318,11 @@ export const useStore = create((set, get) => ({
 
     // reset layout
     reset: () => {
+        get().setPattern("Grid", 5);
         set({
+            oSurfaceHeight: 2300,
+            oSurfaceWidth: 3000,
+            oGroutWidth: 25,
             offsetX: 0,
             offsetY: 0,
             hSpacing: 0,

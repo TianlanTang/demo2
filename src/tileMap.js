@@ -18,7 +18,6 @@ const TileMap = () => {
         >
         {tiles.map((tile, index) => (
             <g key={index} transform={`translate(${tile.x}, ${tile.y})`}>
-                {console.log(tile.x, tile.y)}
                 {/* background */}
                 <rect width={_tileWidth} height={_tileHeight} fill={tile.color} />
                 {/* border */}

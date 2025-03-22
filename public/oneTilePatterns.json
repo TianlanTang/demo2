@@ -1,0 +1,96 @@
+{
+    "patterns": [
+        {
+            "name": "Grid",
+            "tiles": [
+                { "type": "Square", "width": 50, "height": 50, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1], 
+                [1.5, 1], 
+                [2, 1], 
+                [3, 1], 
+                [4, 1], 
+                [6, 1], 
+                [8, 1], 
+                [9, 1], 
+                [12, 1], 
+                [18, 1]
+            ]
+        },
+        {
+            "name": "Horizontal With HorizontalOffset L/W ratio 2:1",
+            "tiles": [
+                { "type": "Rectangular", "width":150, "height":75, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1],
+                [4, 3],
+                [2, 1],
+                [8, 3],
+                [4, 1]            
+            ]
+        },
+        {
+            "name": "Horizontal With HorizontalOffset L/W ratio 1.5:1",
+            "tiles": [
+                { "type": "Rectangular", "width":300, "height":200, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1],
+                [1.5, 1]
+            ]
+        },
+        {
+            "name": "Horizontal With HorizontalOffset L/W ratio 1:1",
+            "tiles": [
+                { "type": "Square", "width":50, "height":50, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1], 
+                [1.5, 1], 
+                [2, 1], 
+                [3, 1], 
+                [4, 1], 
+                [6, 1], 
+                [8, 1], 
+                [9, 1], 
+                [12, 1], 
+                [18, 1]
+            ]
+        },
+        {
+            "name": "Vertical WithHorizontal Offset L/W ratio 1:2",
+            "tiles": [
+                { "type": "Rectangular", "width":75, "height":150, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1],
+                [4, 3],
+                [2, 1],
+                [8, 3]            
+            ]
+        },
+        {
+            "name": "VerticalWithHorizontalOffset L/W ratio 1:1.5",
+            "tiles": [
+                { "type": "Rectangular", "width":200, "height":300, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1],
+                [1.5, 1]
+            ]
+        },
+        {
+            "name": "Vertical WithHorizontal Offset L/W ratio 1:6",
+            "tiles": [
+                { "type": "Square", "width":75, "height":300, "count": 1}
+            ],
+            "tileScale": [
+                [1, 1], 
+                [2, 1]
+            ]
+        }
+    ]
+  }
+  
