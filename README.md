@@ -2,7 +2,7 @@ How to run
 1. git clone https://github.com/TianlanTang/demo2
 2. cd demo2
 3. npm install
-4. npm run
+4. npm start
 
 # Getting Started with Create React App
 
