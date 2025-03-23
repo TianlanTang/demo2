@@ -1,12 +1,13 @@
 import TileMap from './tileMap';
 import Controls from './controls';
 import { useEffect } from 'react';
-import { useStore } from './store';
+import { LoadStore } from './loadStore';
 
 function App() {
+  const store = LoadStore.getState().activeStore();
   useEffect(() => {
     // initialize layout, generate initial tile array
-    useStore.getState().init();
+    store.init();
   }, []);
 
   return (

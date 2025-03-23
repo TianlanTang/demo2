@@ -1,14 +1,13 @@
 import React from 'react';
-import { useStore } from './store';
+import { LoadStore } from './loadStore';
 
 const TileMap = () => {
-    const {tiles, getSurfaceWidth, getSurfaceHeight, getTileWidth, getTileHeight} = useStore();
+    const store = LoadStore(state => state.activeStore);  
+    const {tiles, getSurfaceWidth, getSurfaceHeight} = store();
 
-    const _tileWidth = getTileWidth();
-    const _tileHeight = getTileHeight();
     const _surfaceWidth = getSurfaceWidth();
     const _surfaceHeight = getSurfaceHeight();
-
+    
     return (
         <svg
             id = "tile_svg"
@@ -19,9 +18,9 @@ const TileMap = () => {
         {tiles.map((tile, index) => (
             <g key={index} transform={`translate(${tile.x}, ${tile.y})`}>
                 {/* background */}
-                <rect width={_tileWidth} height={_tileHeight} fill={tile.color} />
+                <rect width={tile.width} height={tile.height} fill={tile.color} />
                 {/* border */}
-                <rect width={_tileWidth} height={_tileHeight} fill="none" stroke="#000" strokeWidth="2" />
+                <rect width={tile.width} height={tile.height} fill="none" stroke="#000" strokeWidth="2" />
             </g>
         ))}           
         </svg>

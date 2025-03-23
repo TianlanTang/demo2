@@ -11,15 +11,12 @@ const loadPatterns = async () => {
     }
 };
 
-export const useStore = create((set, get) => ({ 
+export const oneTileHorizontalStore = create((set, get) => ({ 
     // Layout state
 
-    //store each single tile
+    //store each single tile location
     tiles: [],
 
-    // layout type, supporting horizontal at the moment, 
-    // need to be extended to support diamond and 45 degree
-    layoutType: "horizontal",
 
     //layout options
     // default is center
@@ -56,13 +53,13 @@ export const useStore = create((set, get) => ({
     */
     layoutOptions: "center",
 
-    //horizontal offset for each tile
+    //horizontal offset for even row tile
     hSpacing: 0,
-    //vertical offset for each tile
+    //vertical offset for even col tile
     vSpacing: 0,
 
     // offset for the whole layout 
-    // used for layout options
+    // used for layout options 10
     offsetX: 0,
     offsetY: 0,
 
@@ -81,7 +78,7 @@ export const useStore = create((set, get) => ({
     tileColorEven: "#2196F3", 
     tileColorOdd: "#FFC107",
     
-    generateHorizonTalLayout: () => {
+    generateLayout: () => {
         const {
         tileColorEven,
         tileColorOdd,
@@ -134,8 +131,8 @@ export const useStore = create((set, get) => ({
                     id: `${row}-${col}`,
                     x: x,
                     y: y,
-                    visibleWidth: tileWidth,
-                    visibleHeight: tileHeight,
+                    width: tileWidth,
+                    height: tileHeight,
                     color: color,
                 });
 
@@ -146,10 +143,6 @@ export const useStore = create((set, get) => ({
 
     // generate layout
     init: () => get().generateLayout(),
-
-    generateLayout: () => {
-        get().generateHorizonTalLayout();
-    },
 
     // cal top left tile location based on layoutOptions
     // The whole layout offset is considered here.
@@ -273,7 +266,7 @@ export const useStore = create((set, get) => ({
             oTileWidth: tile.width * numerator / denominator,
             oTileHeight: tile.height * numerator / denominator,
         });
-        get().generateHorizonTalLayout();
+        get().generateLayout();
     },
 
     // set other parameters

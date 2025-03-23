@@ -9,16 +9,19 @@ import {
     Box,
 } from '@mui/material';
 
-import { useStore } from './store';
+import { LoadStore } from './loadStore';
 import React, { useState, useEffect} from 'react';
 
+
 const Controls = () => {
+
+    // switch store
+    const {setStore} = LoadStore.getState();
+    const store = LoadStore.getState().activeStore();
+
     const {
-        tilePattern,
         oSurfaceWidth,
         oSurfaceHeight,
-        oTileWidth,
-        oTileHeight,
         oGroutWidth,
         getTileWidth,
         getTileHeight,
@@ -39,7 +42,7 @@ const Controls = () => {
         setHSpacing,
         setVSpacing,
         reset,
-    } = useStore();
+    } = store;
 
     // load tile patterns
     const [patterns, setPatterns] = useState([]);
@@ -67,6 +70,11 @@ const Controls = () => {
         setSelectedPattern(patternName);
         const pattern = patterns.find((p) => p.name === patternName);
         if (pattern) {
+
+            // switch store
+            setStore(patternName);
+            
+            // switch tile scales
             setTileScales(pattern.tileScale);
             setSelectedScaleIndex('');
             setSelectedBaseSize([pattern.tiles[0].width, pattern.tiles[0].height]);
@@ -121,14 +129,18 @@ const Controls = () => {
         <div style = {{ display: 'flex', flexDirection: 'row'}}>
             <Box padding={2} width={600}>
                 {/*Slider to control Surface Width*/}
-                <Typography id="surface-width-slider" gutterBottom> Surface Width: {oSurfaceWidth} mm</Typography>
-                <Slider
-                    value={oSurfaceWidth}
-                    step={100}
-                    min={1500}
-                    max={4000}
-                    onChange={(e, value) => setSurfaceWidth(value)} 
-                />
+                {setSurfaceWidth && (
+                    <div>
+                        <Typography id="surface-width-slider" gutterBottom> Surface Width: {oSurfaceWidth} mm</Typography>
+                            <Slider
+                                value={oSurfaceWidth}
+                                step={100}
+                                min={1500}
+                                max={4000}
+                                onChange={(e, value) => setSurfaceWidth(value)} 
+                            />
+                    </div>
+                )}
                 {/* Slider to control Surface Height */}
                 <Typography id="surface-height-slider" gutterBottom> Surface Height {oSurfaceHeight} mm</Typography>
                 <Slider
@@ -148,23 +160,28 @@ const Controls = () => {
                     onChange={(e, value) => setGroutWidth(value)}
                 />
                 {/* Slider to control Horizontal Spacing */}
-                <Typography id="horizontal-spacing-slider" gutterBottom> Horizontal Spacing {hSpacing / getScaleFactor()} mm </Typography>
-                <Slider
-                    value={hSpacing}
-                    step={getTileWidth() / 20}
-                    min={0}
-                    max={getTileWidth() / 2 + getGroutWidth()}
-                    onChange={(e, value) => setHSpacing(value)}
-                />
-                {/* Slider to control Vertical Spacing */}
-                <Typography id="vertical-spacing-slider" gutterBottom> Vertical Spacing {vSpacing / getScaleFactor()} mm </Typography>
-                <Slider
-                    value={vSpacing}
-                    step={getTileHeight() / 20}
-                    min={0}
-                    max={getTileHeight() / 2 + getGroutWidth()}
-                    onChange={(e, value) => setVSpacing(value)}
-                />
+                {setHSpacing && (
+                    <div>
+                        <Typography id="horizontal-spacing-slider" gutterBottom> Horizontal Spacing {hSpacing / getScaleFactor()} mm </Typography>
+                        <Slider
+                            value={hSpacing}
+                            step={getTileWidth() / 20}
+                            min={0}
+                            max={getTileWidth() / 2 + getGroutWidth()}
+                            onChange={(e, value) => setHSpacing(value)}
+                        />
+                        {/* Slider to control Vertical Spacing */}
+                        <Typography id="vertical-spacing-slider" gutterBottom> Vertical Spacing {vSpacing / getScaleFactor()} mm </Typography>
+                        <Slider
+                            value={vSpacing}
+                            step={getTileHeight() / 20}
+                            min={0}
+                            max={getTileHeight() / 2 + getGroutWidth()}
+                            onChange={(e, value) => setVSpacing(value)}
+                        />
+                    </div>
+                )}
+
                 {/* Slider to control Horizontal Offset */}
                 <Typography id="horizontal-offset-slider" gutterBottom> Horizontal Offset {offsetX} mm </Typography>
                 <Slider
