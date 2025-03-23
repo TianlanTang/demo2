@@ -1,3 +1,9 @@
+How to run
+1. git clone https://github.com/TianlanTang/demo2
+2. cd demo2
+3. npm install
+4. npm run
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
