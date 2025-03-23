@@ -164,27 +164,42 @@ export const oneTileHerringBoneStore = create((set, get) => ({
                 startTiles.push([offsetX + tileWidth + groutWidth, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileHeight, tileWidth, tileColor[1]]);    
             }
             else if (patternType === "Herringbone single horizontal basic W/Lratio 1:3") {
-                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileHeight, tileWidth, tileColor[0]]);
-                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 2 + tileHeight * 2 + offsetY, tileWidth, tileHeight, tileColor[1]]);
+                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + offsetY + tileWidth * 2 + groutWidth * 2, tileHeight, tileWidth, tileColor[0]]);
+                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + offsetY + groutWidth * 3 + tileWidth * 3, tileWidth, tileHeight, tileColor[1]]);
             }
             else if (patternType === "Herringbone single horizontal blunt W/Lratio 1:1.5") {
                 startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 3 + tileHeight * 1 + tileWidth * 2 + offsetY, tileHeight, tileWidth, tileColor[0]]);
                 startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 4 + tileHeight * 1 + tileWidth * 3 + offsetY, tileWidth, tileHeight, tileColor[1]]);
-                startTiles.push([offsetX + tileHeight + groutWidth, surfaceHeight - OuterShift[1] * numOuterRows + tileWidth * 2 + + groutWidth * 2 + offsetY, tileHeight, tileWidth, tileColor[3]]);
+                startTiles.push([offsetX + tileHeight + groutWidth, surfaceHeight - OuterShift[1] * numOuterRows + tileWidth * 2 + groutWidth * 2 + offsetY, tileHeight, tileWidth, tileColor[3]]);
                 startTiles.push([offsetX + tileHeight + groutWidth, surfaceHeight - OuterShift[1] * numOuterRows + tileWidth * 3 + offsetY + groutWidth * 3, tileWidth, tileHeight, tileColor[4]]);
             }
             else if (patternType === "Herringbone single horizontal narrow W/Lratio 1:4") {
-                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileHeight, tileWidth, tileColor[0]]);
-                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 2 + tileHeight * 2 + offsetY, tileWidth, tileHeight, tileColor[1]]);
+                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 3 + tileWidth * 3 + offsetY, tileHeight, tileWidth, tileColor[0]]);
+                startTiles.push([offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 4 + tileWidth * 4 + offsetY, tileWidth, tileHeight, tileColor[1]]);
             }
         }
-        
-        // TODO: finish the rest of the layout options
         // right bottom tile is whole
         else if (layoutOptions === "rightBottom") {
-            startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth + tileWidth + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileWidth, tileHeight, tileColor[0]]);
-            startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 2 + tileWidth * 2 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileHeight, tileWidth, tileColor[1]]);
+            if(patternType === "Herringbone single horizontal basic W/Lratio 1:2") {
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth + tileWidth + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileWidth, tileHeight, tileColor[0]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 2 + tileWidth * 2 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth + tileHeight + offsetY, tileHeight, tileWidth, tileColor[1]]);
+            }
+            else if (patternType === "Herringbone single horizontal basic W/Lratio 1:3") {
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 3 + tileWidth * 3 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + offsetY + tileWidth * 2 + groutWidth * 2, tileHeight, tileWidth, tileColor[0]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 3 + tileWidth * 3 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + offsetY + groutWidth * 3 + tileWidth * 3, tileWidth, tileHeight, tileColor[1]])
+            }
+            else if (patternType === "Herringbone single horizontal blunt W/Lratio 1:1.5") {
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + tileWidth * 3 + tileHeight * 1 + groutWidth * 5 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 3 + tileHeight * 1 + tileWidth * 2 + offsetY, tileHeight, tileWidth, tileColor[0]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + tileWidth * 3 + tileHeight * 1 + groutWidth * 5 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 4 + tileHeight * 1 + tileWidth * 3 + offsetY, tileWidth, tileHeight, tileColor[1]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + tileWidth * 3 + tileHeight * 2 + groutWidth * 6 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + tileWidth * 2 + groutWidth * 2 + offsetY, tileHeight, tileWidth, tileColor[3]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + tileWidth * 3 + tileHeight * 2 + groutWidth * 6 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + tileWidth * 3 + offsetY + groutWidth * 3, tileWidth, tileHeight, tileColor[4]]);
+            }
+            else if (patternType === "Herringbone single horizontal narrow W/Lratio 1:4") {
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 4 + tileWidth * 4 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 3 + tileWidth * 3 + offsetY, tileHeight, tileWidth, tileColor[0]]);
+                startTiles.push([surfaceWidth - OuterShift[0] * numOuterCols + groutWidth * 4 + tileWidth * 4 + offsetX, surfaceHeight - OuterShift[1] * numOuterRows + groutWidth * 4 + tileWidth * 4 + offsetY, tileWidth, tileHeight, tileColor[1]]);        
+            }
         }
+        // TODO: finish the rest of the layout options
         // left center tile is whole
         else if (layoutOptions === "leftCenter") {
             startTiles.push([offsetX, (surfaceHeight - OuterShift[1] * numOuterRows + groutWidth) / 2 + offsetY, tileWidth, tileHeight, tileColor[0]]);
