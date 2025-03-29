@@ -1,49 +1,41 @@
-import {pattern} from './pattern';
+export const calAnchors = (        
+        anchor,
+        boundingBox,
+        patternVertices,
+        connection,
+        surfaceVertices,
+        holeVertices,
+    ) => { 
+    console.log("Start to cal Anchors");
 
-export const calAnchors = async () => {
-    try {
-        // read data
-        const {
-            anchor,
-            boundingBox,
-            patternVertices,
-            connection,
-            surfaceVertices,
-            holeVertices
-        } = pattern.get();
-        
-        if (!anchor || !connection || !surfaceVertices || !boundingBox || !patternVertices || !holeVertices) {
-          throw new Error('Missing data');
-        }
+    if (!anchor || !connection || !surfaceVertices || !boundingBox || !patternVertices || !holeVertices) {
+        throw new Error('Missing data');
+    }
 
-        // calculate anchors
-        const anchors = [];
+    // calculate anchors
+    const anchors = [];
 
-        // BFS to find all anchors
-        const queue = [anchor];
-        const visited = new Set();
-        visited.add(anchor.toString());
-        while (queue.length > 0) {
-            const [x, y] = queue.shift();
-            anchors.push([x, y]);
-            for (const [dx, dy] of connection) {
-                const [nx, ny] = [x + dx, y + dy];
-                if (visited.has([nx, ny].toString())) {
-                    continue;
-                }
-                if (isValid(nx, ny, boundingBox, patternVertices, surfaceVertices, holeVertices)) {
-                    queue.push([nx, ny]);
-                }
-                visited.add([nx, ny].toString());
+    // BFS to find all anchors
+    const queue = [[anchor[0], anchor[1]]];
+    const visited = new Set();
+    visited.add(anchor.toString());
+    while (queue.length > 0) {
+        const [x, y] = queue.shift();
+        anchors.push([x, y]);
+        for (const [dx, dy] of connection) {
+            const [nx, ny] = [x + dx, y + dy];
+            if (visited.has([nx, ny].toString())) {
+                continue;
             }
+            if (isValid(nx, ny, boundingBox, patternVertices, surfaceVertices, holeVertices)) {
+                queue.push([nx, ny]);
+            }
+            visited.add([nx, ny].toString());
         }
-        return anchors;
     }
-    catch (error) {
-        console.error("Failed to calculate anchors", error);
-        return [];
-    }
+    return anchors;
 }
+
 
 
 const isValid = (x, y, boundingBox, patternVertices, surfaceVertices, holeVertices) => {
@@ -59,6 +51,18 @@ const isValid = (x, y, boundingBox, patternVertices, surfaceVertices, holeVertic
         for (let i = 0; i < vertices.length; i++) {
             const [xi, yi] = vertices[i];
             const [xj, yj] = vertices[j];
+
+            // check if the point is on the edge of the polygon
+            const crossProduct = (py - yi) * (xj - xi) - (px - xi) * (yj - yi);
+            if (crossProduct === 0) {
+                if (
+                    Math.min(xi, xj) <= px && px <= Math.max(xi, xj) &&
+                    Math.min(yi, yj) <= py && py <= Math.max(yi, yj)
+                ) {
+                    return false;  
+                }
+            }
+
             const intersect = (yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
             if (intersect) inside = !inside;
             j = i;

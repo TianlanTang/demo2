@@ -39,7 +39,7 @@ export const loadScale = async () => {
 // load minimum tile length from json
 export const loadMinimumTileLength = async () => {
     try {
-        const response = await fetch("/oneTilePatterns.json");
+        const response = await fetch("/TilePatterns.json");
         const data = await response.json();
         return data.minimumTileLength;
     } catch (error) {

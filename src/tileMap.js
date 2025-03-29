@@ -1,28 +1,58 @@
-import React from 'react';
-import { LoadStore } from './loadStore';
+import { pattern } from './pattern';
+import { useStore } from 'zustand';
 
 const TileMap = () => {
-    const store = LoadStore(state => state.activeStore);  
-    const {tiles, getSurfaceWidth, getSurfaceHeight} = store();
+    console.log("TileMap Ready to Load");
+    const {
+        tiles,
+        tileColors,
+        surfaceVertices,
+        holeVertices,
+    } = useStore(pattern);
 
-    const _surfaceWidth = getSurfaceWidth();
-    const _surfaceHeight = getSurfaceHeight();
-    
+    const width = 900;
+    const height = 600;
+    const shiftX = (width + (surfaceVertices[0][0] - surfaceVertices[1][0])) / 2;
+    const shiftY = (height + (surfaceVertices[1][1] - surfaceVertices[2][1])) / 2;
+
     return (
         <svg
             id = "tile_svg"
-            width={_surfaceWidth}
-            height={_surfaceHeight}
-            style={{ border: '3px solid #000', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}
+            width={width}
+            height={height}
+            style={{ border: '1px solid #000', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}
+
         >
-        {tiles.map((tile, index) => (
-            <g key={index} transform={`translate(${tile.x}, ${tile.y})`}>
-                {/* background */}
-                <rect width={tile.width} height={tile.height} fill={tile.color} />
-                {/* border */}
-                <rect width={tile.width} height={tile.height} fill="none" stroke="#000" strokeWidth="2" />
-            </g>
-        ))}           
+            {/* draw Holes */}
+            {holeVertices.map((hole, index) => (
+                <polygon
+                    key={`hole-${index}`}
+                    points={hole.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                    fill="white"
+                    stroke="#000"
+                    strokeWidth="2"
+                />
+            ))}
+
+            {/* draw Tiles */}
+            {tiles.map((tile, tileIndex) => (
+                tile.map((quad, quadIndex) => (
+                    <polygon
+                        key={`tile-${tileIndex}-quad-${quadIndex}`}
+                        points={quad.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                        fill={tileColors[quadIndex % tileColors.length]} 
+                        stroke="#000"
+                        strokeWidth="0.5"
+                    />
+                ))
+            ))}
+            {/* draw Surface */}
+            <polygon
+                points={surfaceVertices.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                fill="none"
+                stroke="red"
+                strokeWidth="1"
+            />
         </svg>
     );
 };

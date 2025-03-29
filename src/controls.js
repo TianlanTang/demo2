@@ -8,85 +8,59 @@ import {
     Typography,
     Box,
 } from '@mui/material';
-
-import { LoadStore } from './loadStore';
-import React, { useState, useEffect} from 'react';
+import { pattern } from './pattern';
+import React, { useState } from 'react';
+import {useStore} from 'zustand';
 
 
 const Controls = () => {
 
-    // switch store
-    const {setStore} = LoadStore.getState();
-    const store = LoadStore.getState().activeStore();
-
+    // load controllers
     const {
-        oSurfaceWidth,
-        oSurfaceHeight,
-        oGroutWidth,
-        getTileWidth,
-        getTileHeight,
-        getScaleFactor,
-        getGroutWidth,
-        offsetX,
-        offsetY,
-        layoutOptions,
-        hSpacing,
-        vSpacing,
         setPattern,
-        setSurfaceWidth,
-        setSurfaceHeight,
-        setGroutWidth,
         setOffsetX,
         setOffsetY,
-        setLayoutOptions,
-        setHSpacing,
-        setVSpacing,
         reset,
-    } = store;
+        setOGroutWidth,
+        minimumTileLength
+    } = pattern.getState();
+
+    const{
+        patternName,
+        proportionIndex,
+        OSurfaceVertices,
+        setOSurfaceVertices,
+        oGroutWidth,
+        patterns,   
+        offsetX,
+        offsetY
+    } = useStore(pattern);
 
     // load tile patterns
-    const [patterns, setPatterns] = useState([]);
-    const [selectedPattern, setSelectedPattern] = useState('');
-    const [selectedBaseSize, setSelectedBaseSize] = useState([]);
-    const [tileScales, setTileScales] = useState([]);
-    const [selectedScaleIndex, setSelectedScaleIndex] = useState('');
-
-    useEffect(() => {
-        const loadPatterns = async () => {
-            try {
-                const response = await fetch("/oneTilePatterns.json");
-                const data = await response.json();
-                setPatterns(data.patterns);
-            } catch (error) {
-                console.error("Failed to load tile patterns", error);
-            }
-        };
-        loadPatterns();
-    }, []); 
+    const [tileProportions, setTileProportions] = useState([]);
+    const [selectedBaseSize, setSelectedBaseSize] = useState([0, 0]);
 
     // update tileScales selection when patterns change
     const handlepatternChange = (e) => {
         const patternName = e.target.value;
-        setSelectedPattern(patternName);
         const pattern = patterns.find((p) => p.name === patternName);
         if (pattern) {
-
-            // switch store
-            setStore(patternName);
             
             // switch tile scales
-            setTileScales(pattern.tileScale);
-            setSelectedScaleIndex('');
-            setSelectedBaseSize([pattern.tiles[0].width, pattern.tiles[0].height]);
+            setTileProportions(pattern.tileProportion);
+            setPattern(patternName, 0);
+            setSelectedBaseSize([
+                (pattern.tileVertices[0][1][0] - pattern.tileVertices[0][0][0]) * minimumTileLength, 
+                (pattern.tileVertices[0][2][1] - pattern.tileVertices[0][1][1]) * minimumTileLength
+            ]);
         }
     };
 
     // update selected scale index
-    const handleScaleChange = (e) => {
-        const scaleIndex = e.target.value;
-        setSelectedScaleIndex(scaleIndex);
-        if (selectedPattern !== '') {
-            setPattern(selectedPattern, scaleIndex);
+    const handleProportionChange = (e) => {
+        const proportionIndex = e.target.value;
+        if (patternName !== '') {
+            setPattern(patternName, proportionIndex);
         }
     }
 
@@ -128,28 +102,8 @@ const Controls = () => {
     return (
         <div style = {{ display: 'flex', flexDirection: 'row'}}>
             <Box padding={2} width={600}>
-                {/*Slider to control Surface Width*/}
-                {setSurfaceWidth && (
-                    <div>
-                        <Typography id="surface-width-slider" gutterBottom> Surface Width: {oSurfaceWidth} mm</Typography>
-                            <Slider
-                                value={oSurfaceWidth}
-                                step={100}
-                                min={1500}
-                                max={4000}
-                                onChange={(e, value) => setSurfaceWidth(value)} 
-                            />
-                    </div>
-                )}
-                {/* Slider to control Surface Height */}
-                <Typography id="surface-height-slider" gutterBottom> Surface Height {oSurfaceHeight} mm</Typography>
-                <Slider
-                    value={oSurfaceHeight}
-                    step={100}
-                    min={1500}
-                    max={4000}
-                    onChange={(e, value) => setSurfaceHeight(value)}
-                />  
+        
+
                 {/* Slider to control Grout Width */}
                 <Typography id="grout-width-slider" gutterBottom> Grout Width {oGroutWidth} mm</Typography>
                 <Slider
@@ -157,30 +111,8 @@ const Controls = () => {
                     step={5}
                     min={0}
                     max={40}
-                    onChange={(e, value) => setGroutWidth(value)}
+                    onChange={(e, value) => setOGroutWidth(value)}
                 />
-                {/* Slider to control Horizontal Spacing */}
-                {setHSpacing && (
-                    <div>
-                        <Typography id="horizontal-spacing-slider" gutterBottom> Horizontal Spacing {hSpacing / getScaleFactor()} mm </Typography>
-                        <Slider
-                            value={hSpacing}
-                            step={getTileWidth() / 20}
-                            min={0}
-                            max={getTileWidth() / 2 + getGroutWidth()}
-                            onChange={(e, value) => setHSpacing(value)}
-                        />
-                        {/* Slider to control Vertical Spacing */}
-                        <Typography id="vertical-spacing-slider" gutterBottom> Vertical Spacing {vSpacing / getScaleFactor()} mm </Typography>
-                        <Slider
-                            value={vSpacing}
-                            step={getTileHeight() / 20}
-                            min={0}
-                            max={getTileHeight() / 2 + getGroutWidth()}
-                            onChange={(e, value) => setVSpacing(value)}
-                        />
-                    </div>
-                )}
 
                 {/* Slider to control Horizontal Offset */}
                 <Typography id="horizontal-offset-slider" gutterBottom> Horizontal Offset {offsetX} mm </Typography>
@@ -188,7 +120,7 @@ const Controls = () => {
                     value={offsetX}
                     step={5}
                     min={0}
-                    max={getTileWidth() / 2 + getGroutWidth()}
+                    max={500}
                     onChange={(e, value) => setOffsetX(value)}
                 />
                 {/* Slider to control Vertical Offset */}
@@ -197,7 +129,7 @@ const Controls = () => {
                     value={offsetY}
                     step={5}
                     min={0}
-                    max={getTileHeight() / 2 + getGroutWidth()}
+                    max={500}
                     onChange={(e, value) => setOffsetY(value)}  
                 />
             </Box>       
@@ -213,7 +145,7 @@ const Controls = () => {
                             }}
                         >Tile Patterns</InputLabel>
                         <Select
-                            value={selectedPattern}
+                            value={patternName}
                             label="Tile Patterns"
                             onChange={handlepatternChange}
                         >
@@ -225,8 +157,8 @@ const Controls = () => {
                         </Select>
                     </FormControl>
 
-                    {/* Form to select tile scales */}
-                    {selectedPattern  && (
+                    {/* Form to select tile proportions */}
+                    {patternName  && (
                         <FormControl fullWidth sx={{ width: '300px' }}>
                             <InputLabel 
                                 sx={{
@@ -235,13 +167,13 @@ const Controls = () => {
                                 }}
                             >Tile Width/Height</InputLabel>
                             <Select
-                                value={selectedScaleIndex}
+                                value={proportionIndex}
                                 label="Tile Scales"
-                                onChange={handleScaleChange}
+                                onChange={handleProportionChange}
                             >
-                                {tileScales.map((scale, index) => (
+                                {tileProportions.map((proportion, index) => (
                                     <MenuItem key={index} value={index}>
-                                        {`${selectedBaseSize[0] * scale[0] / scale[1]} mm x ${selectedBaseSize[1] * scale[0] / scale[1]} mm `}
+                                        {`${selectedBaseSize[0] * proportion[0] / proportion[1]} mm x ${selectedBaseSize[1] * proportion[0] / proportion[1]} mm `}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -250,8 +182,8 @@ const Controls = () => {
 
                 </div>
      
-    
-                {/* Form to select layout options */}
+{/*     
+                {/* Form to select layout options }
                 <FormControl fullWidth sx={{ width: '300px' }}>
                     <InputLabel
                         sx={{
@@ -275,7 +207,7 @@ const Controls = () => {
                         <MenuItem value="bottomCenter">bottomCenter</MenuItem>
                         <MenuItem value="center">center</MenuItem>
                     </Select>
-                </FormControl>
+                </FormControl> */}
                 <div>    
                     {/* Button to reset all values */}
                     <Button

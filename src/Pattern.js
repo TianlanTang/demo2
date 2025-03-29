@@ -1,7 +1,13 @@
 import {create} from 'zustand';
 import { loadPattern, loadScale, loadMinimumTileLength} from './tools';
+import { calQuads } from './calQuads';
 
 export const pattern = create((set, get) => ({
+
+    // pattern name
+    patternName: "Grid",
+    // pattern proportion
+    proportionIndex: 4,
 
     // surface vetices 
     OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
@@ -27,75 +33,93 @@ export const pattern = create((set, get) => ({
     minimumTileLength: 50,
 
     // grout width
-    groutWidth: 0,
-
-    // vertices of the outline of the pattern, mx2
-    patternVertices: [],
-
-    // bounding box vertices, 4x2
-    boundingBox: [],
-
-    // shift of all vertices of separate tiles nx4x2
-    tileVertices: [],
-
-    // connection shift of four direction, 4 * x
-    connection: [],
+    OGroutWidth: 0,
 
     //Tile color 
-    tileColor: ["#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722"],
+    tileColors: ["#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722"],
 
-    // init
-    init: async (patternName, proportionIndex) => {
+    // offset of the whole layout
+    offsetX: 0,
+    offsetY: 0,
 
-        // load patterns
+    // tiles
+    tiles: [],
+
+    patterns: [],  // save all patterns
+    isDataLoaded: false, 
+    
+    //preload data
+    preloadData: async () => {
         const patterns = await loadPattern();
-        const pattern = patterns.find(p => p.name === patternName);
-        if (!pattern) {
-            console.error("Pattern not found", patternName);
-            return;
-        }
-
-        // load essential parameters
         const scale = await loadScale();
         const minimumTileLength = await loadMinimumTileLength();
-        if (!scale || !minimumTileLength) {
-            console.error("Missing scale or minimum tile length");
+        if (!patterns || !scale || !minimumTileLength) {
+            console.error("load data failed");
             return;
         }
-        set({ scale : scale, minimumTileLength : minimumTileLength });
+        set({ patterns, proportions: pattern.tileProportion, scale, minimumTileLength, isDataLoaded: true });
+        console.log("Data loaded");
+    },
 
-        // load parameters
-        const {      
-            anchor,   
-            groutWidth,
-            updateTransformedVertices,
-        } = get() 
-
-        // anchor point
-        const [x, y] = anchor;
-
-        // load proportion
-        const tileProportion = pattern.tileProportion[Number(proportionIndex)];
-        if (!tileProportion) {
-            console.error("proportion not found", tileProportion);
+    // generate layout
+    generateLayout: () => {
+        const { 
+            patternName, 
+            proportionIndex,
+            anchor, 
+            patterns, 
+            scale, 
+            minimumTileLength, 
+            OGroutWidth,
+            surfaceVertices,
+            holeVertices,
+            offsetX,
+            offsetY
+        } = get();
+    
+        const pattern = patterns.find(p => p.name === patternName);
+        if (!pattern) {
+            console.error("Pattern not found");
             return;
         }
-
-        set(() => ({
-            patternVertices: [],
-            boundingBox: [],
-            connection: [],
-            tileVertices: []
-        })); 
         
-        set(() => {
-            updateTransformedVertices('patternVertices', pattern.patternVertices, x, y, minimumTileLength, tileProportion, groutWidth, scale);
-            updateTransformedVertices('boundingBox', pattern.boundingBox, x, y, minimumTileLength, tileProportion, groutWidth, scale);
-            updateTransformedVertices('connection', pattern.connection, x, y, minimumTileLength, tileProportion, groutWidth, scale);
-            pattern.tileVertices.forEach(tile => {
-                updateTransformedVertices('tileVertices', tile, x, y, minimumTileLength, tileProportion, groutWidth, scale);
+        const tileProportion = pattern.tileProportion[Number(proportionIndex)];
+        const { patternVertices, boundingBox, connection, tileVertices } = pattern;
+        const [x, y] = anchor;
+        
+        const Transform = (vertices) => {
+            return vertices.map(vertex => {
+                const extraX = vertex[3] || 0;
+                const extraY = vertex[2] || 0;
+                const newX = (x + vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraX) * scale;
+                const newY = (y + vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraY) * scale;
+                return [newX, newY];
             });
-        });
+        };
+        
+        const transformedPatternVertices = Transform(patternVertices);
+        const transformedBoundingBox = Transform(boundingBox);
+        const transformedConnection = Transform(connection);
+        console.log("Transformed connection: ", transformedConnection);
+
+        const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));;
+
+        set({tiles: calQuads(    
+            transformedTileVertices, 
+            [x + offsetX * scale, y + offsetY * scale], 
+            transformedBoundingBox,
+            transformedPatternVertices,
+            transformedConnection,
+            surfaceVertices,
+            holeVertices,
+        )});
+
+        console.log("Pattern initialized");
+    },
+
+    // init
+    init: () => {
+        get().generateLayout()
     },
 
     // set anchor point
@@ -104,8 +128,9 @@ export const pattern = create((set, get) => ({
     },
 
     // set grout width
-    setGroutWidth: (groutWidth) => {
-        set({ groutWidth: groutWidth });
+    setOGroutWidth: (OGroutWidth) => {
+        set({ OGroutWidth: OGroutWidth });
+        get().init();
     },
 
     // set surface vertices
@@ -145,13 +170,33 @@ export const pattern = create((set, get) => ({
          });
     },
 
-    // update transformed vertices (adding grout)
-    updateTransformedVertices: (key, vertices, x, y, minimumTileLength, tileProportion, groutWidth, scale) => {
-        const transformed = vertices.map(vertex => [
-            (x + vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + groutWidth * vertex[3]) * scale,
-            (y + vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + groutWidth * vertex[2]) * scale
-        ]);    
-        set({ [key]: [...get()[key], ...transformed] });
+    // update offset
+    setOffsetX: (offsetX) => {
+        set({ offsetX: offsetX });
+        get().init();
+    },
+    setOffsetY: (offsetY) => {
+        set({ offsetY: offsetY });
+        get().init();
+    },
+
+    // set pattern 
+    setPattern: (patternName, proportionIndex) => {
+        set({ patternName: patternName, proportionIndex: proportionIndex });
+        get().init();
+    },
+
+    // reset
+    reset: () => {
+        set({
+            OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
+            surfaceVertices: [[0, 0], [600, 0], [600, 460], [0, 460]],
+            OHoleVertices: [],
+            holeVertices: [],
+            OGroutWidth: 0,
+            offset: [0, 0]
+        });
+        get().init();
     }
 }));
 
