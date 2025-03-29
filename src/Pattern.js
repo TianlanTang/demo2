@@ -48,6 +48,12 @@ export const pattern = create((set, get) => ({
     // tiles
     tiles: [],
 
+    // bounding box size, used to calculate the laytou
+    boundingBoxSize: [],
+    
+    // layout of the pattern, used to calculate the anchor point
+    layout: "TopLeft",
+
     patterns: [],  // save all patterns
     isDataLoaded: false, 
     
@@ -94,8 +100,8 @@ export const pattern = create((set, get) => ({
             return vertices.map(vertex => {
                 const extraX = vertex[3] || 0;
                 const extraY = vertex[2] || 0;
-                const newX = (x + vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraX) * scale;
-                const newY = (y + vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraY) * scale;
+                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraX) * scale;
+                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth * extraY) * scale;
                 return [newX, newY];
             });
         };
@@ -103,7 +109,6 @@ export const pattern = create((set, get) => ({
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
-
         const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));;
 
         set({tiles: calAnchors(    
@@ -114,8 +119,8 @@ export const pattern = create((set, get) => ({
             surfaceVertices,
             holeVertices,
             transformedTileVertices, 
-        )});
-
+        ),
+        boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]]});
         console.log("Pattern initialized");
     },
 
@@ -189,6 +194,45 @@ export const pattern = create((set, get) => ({
         set({ offsetY: offsetY });
         get().init();
     },
+
+    // set layout 
+    setLayout: (layout) => {
+        set ({layout: layout, offsetX: 0, offsetY: 0});
+        const {boundingBoxSize, surfaceVertices} = get();
+        switch (layout) {
+            case "TopLeft":
+                set({ anchor: [0, 0]});
+                break;
+            case "TopRight":
+                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], 0]});
+                break;
+            case "BottomLeft":
+                set({ anchor: [0, surfaceVertices[3][1] - boundingBoxSize[1]]});
+                break;
+            case "BottomRight":
+                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], surfaceVertices[3][1] - boundingBoxSize[1]]});
+                break;
+            case "LeftCenter":
+                set({ anchor: [0, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                break;
+            case "RightCenter":
+                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                break;
+            case "TopCenter":
+                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, 0]})
+                break;
+            case "BottomCenter":
+                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, surfaceVertices[3][1] - boundingBoxSize[1]]});
+                break;
+            case "Center":
+                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                break;
+            default:
+                console.error("Invalid layout type");
+        }
+        console.log("anchor point set to: ", get().anchor);
+        get().init();
+     },
 
     // set pattern 
     setPattern: (patternName, proportionIndex) => {

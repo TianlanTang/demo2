@@ -23,18 +23,17 @@ const Controls = () => {
         reset,
         setOGroutWidth,
         minimumTileLength,
+        setLayout
     } = pattern.getState();
 
     const{
         patternName,
         proportionIndex,
-        OSurfaceVertices,
-        setOSurfaceVertices,
         OGroutWidth,
         patterns,   
         offsetX,
         offsetY,
-        bound
+        layout,
     } = useStore(pattern);
 
     // load tile patterns
@@ -73,7 +72,6 @@ const Controls = () => {
             setPattern(patternName, proportionIndex);
         }
     }
-
 
     // output SVG file
     const exportSVG = () => {
@@ -130,7 +128,7 @@ const Controls = () => {
                     value={offsetX}
                     step={5}
                     min={0}
-                    max={500}
+                    max={1000}
                     onChange={(e, value) => setOffsetX(value)}
                 />
                 {/* Slider to control Vertical Offset */}
@@ -139,7 +137,7 @@ const Controls = () => {
                     value={offsetY}
                     step={5}
                     min={0}
-                    max={200}
+                    max={1000}
                     onChange={(e, value) => setOffsetY(value)}  
                 />
             </Box>       
@@ -192,8 +190,8 @@ const Controls = () => {
 
                 </div>
      
-{/*     
-                {/* Form to select layout options }
+     
+                {/* Form to select layout options */}
                 <FormControl fullWidth sx={{ width: '300px' }}>
                     <InputLabel
                         sx={{
@@ -203,21 +201,21 @@ const Controls = () => {
                     
                     >Layout Options</InputLabel>
                     <Select
-                        value={layoutOptions}
+                        value={layout}
                         label="Layout Options"
-                        onChange={(e) => setLayoutOptions(e.target.value)}
+                        onChange={(e) => setLayout(e.target.value)}
                     >
-                        <MenuItem value="leftTop">leftTop</MenuItem>
-                        <MenuItem value="rightTop">rightTop</MenuItem>
-                        <MenuItem value="leftBottom">leftBottom</MenuItem>
-                        <MenuItem value="rightBottom">rightBottom</MenuItem>
-                        <MenuItem value="leftCenter">leftCenter</MenuItem>
-                        <MenuItem value="rightCenter">rightCenter</MenuItem>
-                        <MenuItem value="topCenter">topCenter</MenuItem>
-                        <MenuItem value="bottomCenter">bottomCenter</MenuItem>
-                        <MenuItem value="center">center</MenuItem>
+                        <MenuItem value="TopLeft">TopLeft</MenuItem>
+                        <MenuItem value="TopRight">TopRight</MenuItem>
+                        <MenuItem value="BottomLeft">BottomLeft</MenuItem>
+                        <MenuItem value="BottomRight">BottomRight</MenuItem>
+                        <MenuItem value="LeftCenter">LeftCenter</MenuItem>
+                        <MenuItem value="RightCenter">RightCenter</MenuItem>
+                        <MenuItem value="TopCenter">TopCenter</MenuItem>
+                        <MenuItem value="BottomCenter">BottomCenter</MenuItem>
+                        <MenuItem value="Center">Center</MenuItem>
                     </Select>
-                </FormControl> */}
+                </FormControl> 
                 <div>    
                     {/* Button to reset all values */}
                     <Button
