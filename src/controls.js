@@ -22,7 +22,7 @@ const Controls = () => {
         setOffsetY,
         reset,
         setOGroutWidth,
-        minimumTileLength
+        minimumTileLength,
     } = pattern.getState();
 
     const{
@@ -30,15 +30,25 @@ const Controls = () => {
         proportionIndex,
         OSurfaceVertices,
         setOSurfaceVertices,
-        oGroutWidth,
+        OGroutWidth,
         patterns,   
         offsetX,
-        offsetY
+        offsetY,
+        bound
     } = useStore(pattern);
 
     // load tile patterns
     const [tileProportions, setTileProportions] = useState([]);
     const [selectedBaseSize, setSelectedBaseSize] = useState([0, 0]);
+
+    if (tileProportions.length === 0) {
+        const pattern = patterns.find((p) => p.name === patternName);
+        setTileProportions(pattern.tileProportion);
+        setSelectedBaseSize([
+            (pattern.tileVertices[0][1][0] - pattern.tileVertices[0][0][0]) * minimumTileLength, 
+            (pattern.tileVertices[0][2][1] - pattern.tileVertices[0][1][1]) * minimumTileLength
+        ]);
+    }
 
     // update tileScales selection when patterns change
     const handlepatternChange = (e) => {
@@ -105,9 +115,9 @@ const Controls = () => {
         
 
                 {/* Slider to control Grout Width */}
-                <Typography id="grout-width-slider" gutterBottom> Grout Width {oGroutWidth} mm</Typography>
+                <Typography id="grout-width-slider" gutterBottom> Grout Width {OGroutWidth} mm</Typography>
                 <Slider
-                    value={oGroutWidth}
+                    value={OGroutWidth}
                     step={5}
                     min={0}
                     max={40}
@@ -129,7 +139,7 @@ const Controls = () => {
                     value={offsetY}
                     step={5}
                     min={0}
-                    max={500}
+                    max={200}
                     onChange={(e, value) => setOffsetY(value)}  
                 />
             </Box>       

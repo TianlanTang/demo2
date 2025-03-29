@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import { loadPattern, loadScale, loadMinimumTileLength} from './tools';
-import { calQuads } from './calQuads';
+import { calAnchors } from './calAnchors';
 
 export const pattern = create((set, get) => ({
 
@@ -17,7 +17,10 @@ export const pattern = create((set, get) => ({
     // holes vertices
     OHoleVertices: [],
     // holes vertices pixel
-    holeVertices: [],
+    holeVertices: [
+        [[100, 100], [400, 100], [400, 260], [100, 260]],
+        [[200, 300], [400, 300], [400, 400], [200, 400]],
+    ],
 
     // sacle the original size to pixel size
     scale: 0.2,
@@ -57,7 +60,7 @@ export const pattern = create((set, get) => ({
             console.error("load data failed");
             return;
         }
-        set({ patterns, proportions: pattern.tileProportion, scale, minimumTileLength, isDataLoaded: true });
+        set({ patterns, scale, minimumTileLength, isDataLoaded: true });
         console.log("Data loaded");
     },
 
@@ -100,18 +103,17 @@ export const pattern = create((set, get) => ({
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
-        console.log("Transformed connection: ", transformedConnection);
 
         const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));;
 
-        set({tiles: calQuads(    
-            transformedTileVertices, 
+        set({tiles: calAnchors(    
             [x + offsetX * scale, y + offsetY * scale], 
             transformedBoundingBox,
             transformedPatternVertices,
             transformedConnection,
             surfaceVertices,
             holeVertices,
+            transformedTileVertices, 
         )});
 
         console.log("Pattern initialized");
@@ -131,6 +133,14 @@ export const pattern = create((set, get) => ({
     setOGroutWidth: (OGroutWidth) => {
         set({ OGroutWidth: OGroutWidth });
         get().init();
+    },
+
+    setSurfaceVertices: (surfaceVertices) => {
+        const newSurfaceVertices = [...surfaceVertices];
+        set({ 
+            OSurfaceVertices: newSurfaceVertices,
+            surfaceVertices: newSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+        });
     },
 
     // set surface vertices
@@ -194,7 +204,8 @@ export const pattern = create((set, get) => ({
             OHoleVertices: [],
             holeVertices: [],
             OGroutWidth: 0,
-            offset: [0, 0]
+            offsetX: 0,
+            offsetY: 0,
         });
         get().init();
     }
