@@ -128,7 +128,7 @@ const Controls = () => {
                     value={offsetX}
                     step={5}
                     min={0}
-                    max={1000}
+                    max={500}
                     onChange={(e, value) => setOffsetX(value)}
                 />
                 {/* Slider to control Vertical Offset */}
@@ -137,7 +137,7 @@ const Controls = () => {
                     value={offsetY}
                     step={5}
                     min={0}
-                    max={1000}
+                    max={500}
                     onChange={(e, value) => setOffsetY(value)}  
                 />
             </Box>       

@@ -19,6 +19,8 @@ const TileMap = () => {
     // State to control the number of tiles rendered
     const [visibleTiles, setVisibleTiles] = useState(tiles.flat().length); // Initially show all tiles
     const [animate, setAnimate] = useState(false); // Control whether to animate
+    const [fill, setFill] = useState('none'); // Control whether to fill the holes
+    const [IsShowIndex, setIsShowIndex] = useState(false); // Control whether to show tile index
 
     useEffect(() => {
         if (animate) {
@@ -40,9 +42,9 @@ const TileMap = () => {
         }
     };
 
-    const toggleAnimation = () => {
-        setAnimate(!animate); // Toggle animation state
-    };
+    const toggleFill = () => {
+        setFill(fill === 'none' ? 'white' : 'none'); // Toggle fill color
+    }
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -51,8 +53,14 @@ const TileMap = () => {
                 <button onClick={handleReload} style={{ marginBottom: '10px' }}>
                     Reload
                 </button>
-                <button onClick={toggleAnimation}>
+                <button onClick={() => setAnimate(!animate)} style={{ marginBottom: '10px' }}>
                     {animate ? 'Disable Animation' : 'Enable Animation'}
+                </button>
+                <button onClick={toggleFill} style={{ marginTop: '10px' }}>
+                    {fill === 'none' ? 'Add Mask' : 'No Mask'}
+                </button>
+                <button onClick={() => setIsShowIndex(!IsShowIndex)} style={{ marginTop: '10px' }}>
+                    {IsShowIndex ? 'Hide Index' : 'Show Index'}
                 </button>
             </div>
 
@@ -63,37 +71,64 @@ const TileMap = () => {
                 height={height}
                 style={{ border: '1px solid #000', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}
             >
+                {/* Define mask */}
+                <defs>
+                    <mask id="surfaceMask">
+                        <rect width={width} height={height} fill="white" />
+                        <polygon
+                            points={surfaceVertices.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                            fill="black"
+                        />
+                    </mask>
+                </defs>
 
                 {/* draw Tiles */}
                 {tiles.map((tileGroup, tileGroupIndex) => (
                     tileGroup.map(({ tile, draw }, tileIndex) => (
                         draw && (tileGroupIndex * tileGroup.length + tileIndex < visibleTiles) ? (
-                            <polygon
-                                key={`tile-${tileGroupIndex}-quad-${tileIndex}`}
-                                points={tile.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                                fill={tileColors[tileIndex % tileColors.length]} 
-                                stroke="#000"
-                                strokeWidth="0.5"
-                            />
+                            <g key={`tile-${tileGroupIndex}-quad-${tileIndex}`}>
+                                {/* Tile Polygon */}
+                                <polygon
+                                    points={tile.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
+                                    fill={tileColors[tileIndex % tileColors.length]} 
+                                    stroke="#000"
+                                    strokeWidth="0.5"
+                                />
+                                {/* Tile Index */}
+                                {IsShowIndex && <text
+                                    x={tile.reduce((sum, [x, y]) => sum + x, 0) / tile.length + shiftX}
+                                    y={tile.reduce((sum, [x, y]) => sum + y, 0) / tile.length + shiftY}
+                                    fill="black"
+                                    fontSize="12"
+                                    textAnchor="middle"
+                                    alignmentBaseline="middle"
+                                >
+                                    {tileIndex}
+                                </text>}
+                            </g>
                         ) : null
                     ))
                 ))}
+
 
                 {/* draw Holes */}
                 {holeVertices.map((hole, index) => (
                     <polygon
                         key={`hole-${index}`}
                         points={hole.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
-                        fill="none"
+                        fill={fill}
                         stroke="yellow"
                         strokeWidth="1"
                     />
                 ))}
 
+                {/* Apply Mask */}
+                <rect width={width} height={height} fill={fill} mask="url(#surfaceMask)" />
+
                 {/* draw Surface */}
                 <polygon
                     points={surfaceVertices.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
-                    fill="none"
+                    fill='none'
                     stroke="red"
                     strokeWidth="1"
                 />

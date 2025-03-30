@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import { loadPattern, loadScale, loadMinimumTileLength} from './tools';
-import { calAnchors } from './calAnchors';
+import { calAnchors_clipper } from './calAnchors_clipper';
 
 export const pattern = create((set, get) => ({
 
@@ -20,6 +20,7 @@ export const pattern = create((set, get) => ({
     holeVertices: [
         [[100, 100], [400, 100], [400, 260], [100, 260]],
         [[200, 300], [400, 300], [400, 400], [200, 400]],
+        [[500, 200], [600, 200], [600, 460], [500, 460]],
     ],
 
     // sacle the original size to pixel size
@@ -39,8 +40,12 @@ export const pattern = create((set, get) => ({
     OGroutWidth: 0,
 
     //Tile color 
-    tileColors: ["#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722"],
-
+    tileColors: [
+        "#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722", 
+        "#E91E63", "#795548", "#607D8B", "#00BCD4", "#8BC34A", 
+        "#FF9800", "#673AB7"
+    ],
+      
     // offset of the whole layout
     offsetX: 0,
     offsetY: 0,
@@ -111,7 +116,8 @@ export const pattern = create((set, get) => ({
         const transformedConnection = Transform(connection);
         const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));;
 
-        set({tiles: calAnchors(    
+        console.time("calAnchors");
+        set({tiles: calAnchors_clipper(    
             [x + offsetX * scale, y + offsetY * scale], 
             transformedBoundingBox,
             transformedPatternVertices,
@@ -121,6 +127,7 @@ export const pattern = create((set, get) => ({
             transformedTileVertices, 
         ),
         boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]]});
+        console.timeEnd("calAnchors");
         console.log("Pattern initialized");
     },
 

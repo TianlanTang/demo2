@@ -33,11 +33,10 @@ export const calAnchors = (
             const inSurface = isPointInsidePolygon(pt, surfaceVertices) || isPointOnPolygonEdge(pt, surfaceVertices);
             const inHole = isPointInHole(pt, holeVertices);
         
-            // Check if all points are either inside a hole or outside/on the boundary
-            return !(inSurface || inHole);  // If a point is neither in the surface nor in the hole, return false
+            // If a point is neither inside the surface (or on its edge) nor inside any hole, return false
+            return !(inSurface || inHole);
         });
         
-
         // Only consider adding if part of the grouped shape is inside the surface
         if (!compositeAllOutside) {
             let compositeTileAnchors = []; // Store information for each tile in the current group
@@ -70,13 +69,14 @@ export const calAnchors = (
             // Check if the next group is partially or completely inside the surface, or on the edge
             const nextBoundingBox = boundingBox.map(([dx, dy]) => [nx + dx, ny + dy]);
             
-            // Determine whether to skip based on whether all points are outside the surface and not on the edge
+            // Determine whether to skip based on whether all points are outside the surface (and not on the edge)
             const isNextGroupOutsideSurface = nextBoundingBox.every(pt => {
                 const inSurface = isPointInsidePolygon(pt, surfaceVertices) || isPointOnPolygonEdge(pt, surfaceVertices);
-                return !inSurface; // If a point is neither inside the surface nor on the edge, it is considered outside
+                return !inSurface;
             });
 
-            // Skip adding to the queue if all points are completely outside the surface
+            // Only skip if all points are completely outside the surface;
+            // if any point is inside or on the edge, push into the queue.
             if (!isNextGroupOutsideSurface) {
                 queue.push([nx, ny]);
             }
@@ -95,7 +95,8 @@ const isPointInsidePolygon = (point, vertices) => {
         const [xi, yi] = vertices[i];
         const [xj, yj] = vertices[j];
 
-        // If the point is exactly on the edge, it is not considered inside (surface allows edge points, but holes do not)
+        // If the point is exactly on the edge, it is not considered inside 
+        // (surface allows edge points, but holes do not)
         const crossProduct = (py - yi) * (xj - xi) - (px - xi) * (yj - yi);
         if (crossProduct === 0) {
             if (
@@ -160,15 +161,19 @@ const isPointInHole = (point, holeVertices) => {
 };
 
 // Check the containment status of a polygon (tile)
-// Logic: If all vertices are inside the surface, return true; if all are outside, return false; otherwise, check boundary intersections
+// Logic: 
+// 1. If all vertices are inside the surface, return true.
+// 2. If all vertices are inside one hole (or on its edge), return false.
+// 3. Otherwise, if vertices are mixed (例如，部分在hole里、部分在surface外), return true,
+//    by further checking potential boundary intersections.
 const isPolygonInside = (polygon, surfaceVertices, holeVertices) => {
-    // Additional check: If no vertices are strictly inside the surface, but some are on the edge, the tile is not considered inside
+    // Additional check: if no vertices are strictly inside the surface but some are on its edge, then not inside.
     const strictInsideCount = polygon.filter(pt => isPointInsidePolygon(pt, surfaceVertices)).length;
     const onEdgeCount = polygon.filter(pt => !isPointInsidePolygon(pt, surfaceVertices) && isPointOnPolygonEdge(pt, surfaceVertices)).length;
     if (strictInsideCount === 0 && onEdgeCount > 0) return false;
 
     let inSurfaceCount = 0;
-    let inHoleCounts = new Map(); // Record the number of points in different holes
+    let inHoleCounts = new Map(); // Record the count of vertices in each hole
 
     for (const pt of polygon) {
         if (isPointInSurface(pt, surfaceVertices, holeVertices)) {
@@ -183,21 +188,28 @@ const isPolygonInside = (polygon, surfaceVertices, holeVertices) => {
         }
     }
 
-    // If all vertices are inside the surface, return true
+    // If all vertices are inside the surface, the tile is drawable.
     if (inSurfaceCount === polygon.length) return true;
     
-    // If all vertices are inside a single hole, return false
-    if (inHoleCounts.size === 1 && inSurfaceCount === 0) return false;
+    // 如果所有顶点都在同一洞内，则返回 false（排除该 tile）
+    if (inSurfaceCount === 0 && inHoleCounts.size === 1) {
+        const totalInHole = [...inHoleCounts.values()][0];
+        if (totalInHole === polygon.length) {
+            return false;
+        } else {
+            // 如果部分在洞内，其余在 surface 外或边上，则视为部分可绘制
+            return true;
+        }
+    }
 
-    // If tile vertices are distributed across multiple holes, return true
+    // 如果顶点分布在多个洞中，视为部分可绘制
     if (inHoleCounts.size > 1) return true;
 
-    // If tile vertices are partially in a hole and partially outside the surface, return true
+    // 如果所有顶点都不在 surface 内，但存在部分顶点在洞内，则视为部分可绘制
     if (inHoleCounts.size > 0 && inSurfaceCount === 0) return true;
 
-    // Construct tile edges
+    // Fallback: 通过检查 tile 的边与 surface（包括洞）的边是否有交叉来判断
     const polyEdges = polygon.map((pt, idx, arr) => [pt, arr[(idx + 1) % arr.length]]);
-    // Construct surface (including holes) edges
     const surfaceEdges = [
         ...surfaceVertices.map((pt, idx, arr) => [pt, arr[(idx + 1) % arr.length]]),
         ...holeVertices.flatMap(hole =>
