@@ -1,4 +1,4 @@
-How to run
+How to run this toy demo
 
 1. Install the Node.js runtime environment.
 
