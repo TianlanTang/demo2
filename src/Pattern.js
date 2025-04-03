@@ -110,11 +110,23 @@ export const pattern = create((set, get) => ({
                 return [newX, newY];
             });
         };
+
+        const TransformTiles = (vertices) => {
+            return vertices.map(vertex => {
+                const leftDeduction = vertex[2] || 0;
+                const topDeduction = vertex[3] || 0;
+                const rightDeduction = vertex[4] || 0;
+                const bottomDeduction = vertex[5] || 0;
+                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth / 2 * leftDeduction - OGroutWidth / 2 * rightDeduction) * scale;
+                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth / 2 * topDeduction - OGroutWidth / 2 * bottomDeduction) * scale;
+                return [newX, newY];
+            });
+        };
         
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
-        const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));;
+        const transformedTileVertices = tileVertices.map(tileVertex => TransformTiles(tileVertex));;
 
         console.time("calAnchors");
         set({tiles: calAnchors_clipper(    
@@ -204,47 +216,53 @@ export const pattern = create((set, get) => ({
 
     // set layout 
     setLayout: (layout) => {
-        set ({layout: layout, offsetX: 0, offsetY: 0});
-        const {boundingBoxSize, surfaceVertices} = get();
+        set({ layout: layout });
+        const { boundingBoxSize, surfaceVertices, init} = get();
+        let anchor;
         switch (layout) {
             case "TopLeft":
-                set({ anchor: [0, 0]});
+                anchor = [0, 0];
                 break;
             case "TopRight":
-                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], 0]});
+                anchor = [surfaceVertices[1][0] - boundingBoxSize[0], 0];
                 break;
             case "BottomLeft":
-                set({ anchor: [0, surfaceVertices[3][1] - boundingBoxSize[1]]});
+                anchor = [0, surfaceVertices[3][1] - boundingBoxSize[1]];
                 break;
             case "BottomRight":
-                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], surfaceVertices[3][1] - boundingBoxSize[1]]});
+                anchor = [surfaceVertices[1][0] - boundingBoxSize[0], surfaceVertices[3][1] - boundingBoxSize[1]];
                 break;
             case "LeftCenter":
-                set({ anchor: [0, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                anchor = [0, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2];
                 break;
             case "RightCenter":
-                set({ anchor: [surfaceVertices[1][0] - boundingBoxSize[0], (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                anchor = [surfaceVertices[1][0] - boundingBoxSize[0], (surfaceVertices[3][1] - boundingBoxSize[1]) / 2];
                 break;
             case "TopCenter":
-                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, 0]})
+                anchor = [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, 0];
                 break;
             case "BottomCenter":
-                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, surfaceVertices[3][1] - boundingBoxSize[1]]});
+                anchor = [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, surfaceVertices[3][1] - boundingBoxSize[1]];
                 break;
             case "Center":
-                set ({ anchor: [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2]});
+                anchor = [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2];
                 break;
             default:
                 console.error("Invalid layout type");
+                return;
         }
-        console.log("anchor point set to: ", get().anchor);
-        get().init();
-     },
+        set({ anchor }); // Update the anchor point
+        console.log("Layout updated:", layout);
+        console.log("Anchor point updated:", anchor);
+        init();
+    },
 
     // set pattern 
     setPattern: (patternName, proportionIndex) => {
         set({ patternName: patternName, proportionIndex: proportionIndex });
-        get().init();
+        const { layout, setLayout } = get();
+        get().init(); // init first to update bounding box size
+        setLayout(layout); // Recalculate the layout and anchor point
     },
 
     // reset

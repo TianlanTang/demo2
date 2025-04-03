@@ -70,7 +70,6 @@ const Controls = () => {
         const proportionIndex = e.target.value;
         if (patternName !== '') {
             setPattern(patternName, proportionIndex);
-            setLayout(layout); // Trigger layout update
         }
     }
 
