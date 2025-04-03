@@ -9,6 +9,8 @@ const TileMap = () => {
         tileColors,
         surfaceVertices,
         holeVertices,
+        layout, // Add layout to destructured state
+        proportionIndex, // Add proportionIndex to destructured state
     } = useStore(pattern);
 
     const width = 900;
@@ -34,11 +36,39 @@ const TileMap = () => {
         }
     }, [visibleTiles, tiles, animate]);
 
+    useEffect(() => {
+        if (!animate) {
+            // Ensure all tiles are visible when animation is disabled
+            setVisibleTiles(tiles.flat().length);
+        }
+    }, [animate, tiles]);
+
+    useEffect(() => {
+        // Reset animation when layout changes
+        setVisibleTiles(0);
+        if (!animate) {
+            setTimeout(() => {
+                setVisibleTiles(tiles.flat().length); // Ensure all tiles are shown after reset
+            }, 0);
+        }
+    }, [layout, animate, tiles]);
+
+    useEffect(() => {
+        // Reset visible tiles when proportionIndex changes
+        setVisibleTiles(0);
+        if (!animate) {
+            setTimeout(() => {
+                setVisibleTiles(tiles.flat().length); // Ensure all tiles are shown after reset
+            }, 0);
+        }
+    }, [proportionIndex, animate, tiles]);
+
     const handleReload = () => {
         setVisibleTiles(0); // Reset visible tiles
         if (!animate) {
-            // If animation is disabled, immediately show all tiles
-            setVisibleTiles(tiles.flat().length);
+            setTimeout(() => {
+                setVisibleTiles(tiles.flat().length); // Ensure all tiles are shown after reset
+            }, 0);
         }
     };
 
