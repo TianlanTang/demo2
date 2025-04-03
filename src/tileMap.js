@@ -34,6 +34,13 @@ const TileMap = () => {
         }
     }, [visibleTiles, tiles, animate]);
 
+    useEffect(() => {
+        if (!animate) {
+            // Ensure all tiles are visible when animation is disabled
+            setVisibleTiles(tiles.flat().length);
+        }
+    }, [tiles, animate]); // Re-run when tiles or animation state changes
+
     const handleReload = () => {
         setVisibleTiles(0); // Reset visible tiles
         if (!animate) {
