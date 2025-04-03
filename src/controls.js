@@ -23,7 +23,7 @@ const Controls = () => {
         reset,
         setOGroutWidth,
         minimumTileLength,
-        setLayout
+        setLayout,
     } = pattern.getState();
 
     const{

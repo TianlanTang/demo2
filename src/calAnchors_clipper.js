@@ -70,8 +70,11 @@ export const calAnchors_clipper = (
 
             const nextBoundingBox = boundingBox.map(([dx, dy]) => [nx + dx, ny + dy]);
             const nextPath = convertPolygon(nextBoundingBox);
-            const nextIntersection = clipPolygon(nextPath, effectiveSurfacePaths);
-            if (areaFromPaths(nextIntersection) > 0) {
+            const nextIntersection = clipPolygon(nextPath, [surfacePath]);
+            const nextArea = areaFromPaths(nextIntersection);
+
+            // Ensure BFS continues if the anchor is within the surface
+            if (nextArea > 0) {
                 queue.push([nx, ny]);
             }
             visited.add(key);
