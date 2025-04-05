@@ -23,6 +23,9 @@ export const pattern = create((set, get) => ({
         [[500, 200], [600, 200], [600, 460], [500, 460]],
     ],
 
+    // decide hot to deal with the grout
+    isShrinking: false,
+
     // sacle the original size to pixel size
     scale: 0.2,
 
@@ -88,7 +91,8 @@ export const pattern = create((set, get) => ({
             surfaceVertices,
             holeVertices,
             offsetX,
-            offsetY
+            offsetY,
+            isShrinking
         } = get();
     
         const pattern = patterns.find(p => p.name === patternName);
@@ -101,7 +105,7 @@ export const pattern = create((set, get) => ({
         const { patternVertices, boundingBox, connection, tileVertices } = pattern;
         const [x, y] = anchor;
         
-        const Transform = (vertices) => {
+        const NonShrinkingTransform = (vertices) => {
             return vertices.map(vertex => {
                 const extraX = vertex[3] || 0;
                 const extraY = vertex[2] || 0;
@@ -111,22 +115,31 @@ export const pattern = create((set, get) => ({
             });
         };
 
-        const TransformTiles = (vertices) => {
+        const ShrinkingTransform = (vertices) => {
             return vertices.map(vertex => {
-                const leftDeduction = vertex[2] || 0;
-                const topDeduction = vertex[3] || 0;
-                const rightDeduction = vertex[4] || 0;
-                const bottomDeduction = vertex[5] || 0;
-                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth / 2 * leftDeduction - OGroutWidth / 2 * rightDeduction) * scale;
-                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + OGroutWidth / 2 * topDeduction - OGroutWidth / 2 * bottomDeduction) * scale;
+                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1]) * scale 
+                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1]) * scale 
                 return [newX, newY];
             });
         };
-        
+
+        const vertexTransform = (vertices) => {
+            return vertices.map(vertex => {
+                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + vertex[5] * OGroutWidth / 2) * scale 
+                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + vertex[4] * OGroutWidth / 2) * scale 
+                return [newX, newY];
+            });
+        }
+
+        let Transform = isShrinking ? ShrinkingTransform : NonShrinkingTransform;
+
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
-        const transformedTileVertices = tileVertices.map(tileVertex => TransformTiles(tileVertex));;
+
+        Transform = isShrinking ? vertexTransform : NonShrinkingTransform;
+        const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));
+        
 
         console.time("calAnchors");
         set({tiles: calAnchors_clipper(    
@@ -140,6 +153,7 @@ export const pattern = create((set, get) => ({
         ),
         boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]]});
         console.timeEnd("calAnchors");
+        console.log("Tiles generated: ", get().tiles);
         console.log("Pattern initialized");
     },
 
@@ -263,6 +277,12 @@ export const pattern = create((set, get) => ({
         const { layout, setLayout } = get();
         get().init(); // init first to update bounding box size
         setLayout(layout); // Recalculate the layout and anchor point
+    },
+
+    // set shrinking
+    setShrinking: (isShrinking) => {
+        set({ isShrinking: isShrinking });
+        get().init();
     },
 
     // reset
