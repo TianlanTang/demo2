@@ -133,7 +133,6 @@ export const pattern = create((set, get) => ({
         ),
         boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]]});
         console.timeEnd("calAnchors");
-        console.log("Tiles generated: ", get().tiles);
         console.log("Pattern initialized");
     },
 
