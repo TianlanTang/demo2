@@ -15,6 +15,9 @@ export const calAnchors_clipper = (
         throw new Error('Missing data');
     }
 
+    // Ensure all vertices are rounded to 4 decimal places
+    const round = (num) => Number(num.toFixed(4));
+
     // Convert surface and holes to Clipper format
     const surfacePath = convertPolygon(surfaceVertices);
     const holePaths = holeVertices.map(hole => convertPolygon(hole));
@@ -25,7 +28,9 @@ export const calAnchors_clipper = (
     const visited = new Set();
     visited.add(anchor.toString());
 
+    let count = 0;
     while (queue.length > 0) {
+        count++;
         const [ax, ay] = queue.shift();
 
         // Compute the bounding box of the current grouped shape
@@ -65,7 +70,7 @@ export const calAnchors_clipper = (
         // BFS: Explore adjacent grouped shapes
         for (const [dx, dy] of connection) {
             const [nx, ny] = [ax + dx, ay + dy];
-            const key = [nx, ny].toString();
+            const key = [round(nx), round(ny)].toString();
             if (visited.has(key)) continue;
 
             const nextBoundingBox = boundingBox.map(([dx, dy]) => [nx + dx, ny + dy]);
@@ -80,6 +85,7 @@ export const calAnchors_clipper = (
             visited.add(key);
         }
     }
+    console.log(`Processed ${count} anchors`);
     return anchors;
 };
 

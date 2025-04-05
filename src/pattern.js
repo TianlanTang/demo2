@@ -92,7 +92,6 @@ export const pattern = create((set, get) => ({
             holeVertices,
             offsetX,
             offsetY,
-            isShrinking
         } = get();
     
         const pattern = patterns.find(p => p.name === patternName);
@@ -105,7 +104,7 @@ export const pattern = create((set, get) => ({
         const { patternVertices, boundingBox, connection, tileVertices } = pattern;
         const [x, y] = anchor;
         
-        const NonShrinkingTransform = (vertices) => {
+        const Transform = (vertices) => {
             return vertices.map(vertex => {
                 const extraX = vertex[3] || 0;
                 const extraY = vertex[2] || 0;
@@ -115,29 +114,10 @@ export const pattern = create((set, get) => ({
             });
         };
 
-        const ShrinkingTransform = (vertices) => {
-            return vertices.map(vertex => {
-                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1]) * scale 
-                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1]) * scale 
-                return [newX, newY];
-            });
-        };
-
-        const vertexTransform = (vertices) => {
-            return vertices.map(vertex => {
-                const newX = (vertex[0] * minimumTileLength * tileProportion[0] / tileProportion[1] + vertex[5] * OGroutWidth / 2) * scale 
-                const newY = (vertex[1] * minimumTileLength * tileProportion[0] / tileProportion[1] + vertex[4] * OGroutWidth / 2) * scale 
-                return [newX, newY];
-            });
-        }
-
-        let Transform = isShrinking ? ShrinkingTransform : NonShrinkingTransform;
 
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
-
-        Transform = isShrinking ? vertexTransform : NonShrinkingTransform;
         const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));
         
 
@@ -277,12 +257,6 @@ export const pattern = create((set, get) => ({
         const { layout, setLayout } = get();
         get().init(); // init first to update bounding box size
         setLayout(layout); // Recalculate the layout and anchor point
-    },
-
-    // set shrinking
-    setShrinking: (isShrinking) => {
-        set({ isShrinking: isShrinking });
-        get().init();
     },
 
     // reset

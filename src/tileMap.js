@@ -9,8 +9,6 @@ const TileMap = () => {
         tileColors,
         surfaceVertices,
         holeVertices,
-        isShrinking,
-        setShrinking
     } = useStore(pattern);
 
     const width = 900;
@@ -70,9 +68,6 @@ const TileMap = () => {
                 </button>
                 <button onClick={() => setIsShowIndex(!IsShowIndex)} style={{ marginTop: '10px' }}>
                     {IsShowIndex ? 'Hide Index' : 'Show Index'}
-                </button>
-                <button onClick={() => setShrinking(!isShrinking)} style={{ marginTop: '10px' }}>
-                    {isShrinking ? 'Stop Shrinking' : 'Start Shrinking'}
                 </button>
             </div>
 
