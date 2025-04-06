@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import { loadPattern, loadScale, loadMinimumTileLength} from './tools';
+import { loadPattern, loadScale, loadMinimumTileLength, loadProps} from './tools';
 import { calAnchors_clipper } from './calAnchors_clipper';
 
 export const pattern = create((set, get) => ({
@@ -8,6 +8,12 @@ export const pattern = create((set, get) => ({
     patternName: "Grid",
     // pattern proportion
     proportionIndex: 4,
+
+    // size indices
+    // m * n m is the number of different sizes, n is the number of tiles in the pattern
+    propIndices: [], 
+    // tile props
+    tileProps: [],
 
     // surface vetices 
     OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
@@ -64,17 +70,26 @@ export const pattern = create((set, get) => ({
 
     patterns: [],  // save all patterns
     isDataLoaded: false, 
+
+    // total area covered by the tiles
+    totalAreaCovered: 0,
+    // total area of the surface minus the holes
+    effectiveSurfaceArea: 0,
+
+    // is tile on wall 
+    isWall: true,
     
     //preload data
     preloadData: async () => {
         const patterns = await loadPattern();
         const scale = await loadScale();
         const minimumTileLength = await loadMinimumTileLength();
+        const tileProps = await loadProps();
         if (!patterns || !scale || !minimumTileLength) {
             console.error("load data failed");
             return;
         }
-        set({ patterns, scale, minimumTileLength, isDataLoaded: true });
+        set({ patterns, scale, minimumTileLength, tileProps, isDataLoaded: true });
         console.log("Data loaded");
     },
 
@@ -100,7 +115,13 @@ export const pattern = create((set, get) => ({
             return;
         }
         
+        // used to calculate the size of the pattern
         const tileProportion = pattern.tileProportion[Number(proportionIndex)];
+
+        // used to find the standard size of the pattern
+        // which is used to calulate the costs
+        const propIndices = pattern.propIndices[Number(proportionIndex)];
+
         const { patternVertices, boundingBox, connection, tileVertices } = pattern;
         const [x, y] = anchor;
         
@@ -122,7 +143,7 @@ export const pattern = create((set, get) => ({
         
 
         console.time("calAnchors");
-        set({tiles: calAnchors_clipper(    
+        const {anchors, totalAreaCovered, effectiveSurfaceArea} = calAnchors_clipper(    
             [x + offsetX * scale, y + offsetY * scale], 
             transformedBoundingBox,
             transformedPatternVertices,
@@ -130,8 +151,22 @@ export const pattern = create((set, get) => ({
             surfaceVertices,
             holeVertices,
             transformedTileVertices, 
-        ),
-        boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]]});
+        );
+        set({tiles: anchors, 
+            totalAreaCovered: totalAreaCovered,
+            effectiveSurfaceArea: effectiveSurfaceArea,
+            boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]],
+            propIndices: propIndices,
+        });
+
+        // Check for duplicate anchors
+        const uniqueAnchors = anchors.filter((anchor, index, self) =>
+            index === self.findIndex((a) => a[0] === anchor[0] && a[1] === anchor[1])
+        );
+        if (uniqueAnchors.length !== anchors.length) {
+            alert("Duplicate anchors found");
+        }
+        console.log("Anchors calculated:", anchors);
         console.timeEnd("calAnchors");
         console.log("Pattern initialized");
     },
@@ -256,6 +291,11 @@ export const pattern = create((set, get) => ({
         const { layout, setLayout } = get();
         get().init(); // init first to update bounding box size
         setLayout(layout); // Recalculate the layout and anchor point
+    },
+
+    // set will or floor
+    setIsWall: () => {
+        set({ isWall: !get().isWall });
     },
 
     // reset
