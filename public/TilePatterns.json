@@ -6,7 +6,7 @@
         {
             "tileClass": 1,
             "family": "Stack",
-            "name": "Grid",
+            "name": "Square Grid Pattern",
             "propIndices": [
                 [0],
                 [1],
@@ -60,7 +60,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Horizontal With Horizontal Offset W/Lratio 2:1",
+            "name": "Staggered Brickwork 1:2",
             "patternVertices": [
                 [0, 0, 0, 0],
                 [3, 0, 0, 0],
@@ -90,14 +90,12 @@
             "tileProportion": [
                 [1, 1],
                 [4, 3],
-                [2, 1],
-                [8, 3],
-                [3, 1]            
+                [2, 1]        
             ]
         },
         {
             "tileClass": 1,
-            "name": "Horizontal With Horizontal Offset W/Lratio 1.5:1",
+            "name": "Staggered Brickwork 1:1.5",
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -126,12 +124,13 @@
             ],
             "tileProportion": [
                 [1, 1],
-                [1.5, 1]
+                [1.5, 1],
+                [2, 1]
             ]
         },
         {
             "tileClass": 1,
-            "name": "Horizontal With Horizontal Offset W/Lratio 1:1",
+            "name": "Square Brickwork",
             "patternVertices": [
                 [0, 0, 0, 0],
                 [1, 0, 0, 0],
@@ -173,7 +172,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Vertical With Horizontal Offset W/Lratio 1:2",
+            "name": "Vertical Brickwork Basic",
             "patternVertices": [
                 [0, 0, 0, 0],
                 [1.5, 0, 0, 0],
@@ -201,15 +200,13 @@
                 [0.75, 3, 1, 0.5]
             ],
             "tileProportion": [
-                [1.5, 1],
-                [4, 3],
                 [2, 1],
-                [8, 3]            
+                [4, 1]      
             ]
         },
         {
             "tileClass": 1,
-            "name": "Vertical With Horizontal Offset W/Lratio 1:1.5",
+            "name": "Vertical Brickwork Medium",
             "patternVertices": [
                 [0, 0, 0, 0],
                 [4, 0, 0, 0],
@@ -237,47 +234,45 @@
                 [2, 6, 1, 0.5]
             ],
             "tileProportion": [
-                [1, 1],
-                [1.5, 1]
+                [1, 1]
             ]
         },
         {
             "tileClass": 1,
-            "name": "Vertical With Horizontal Offset W/Lratio 1:6",
+            "name": "Vertical Brickwork Narrow",
             "patternVertices": [
                 [0, 0, 0, 0],
-                [1.5, 0, 0, 0],
-                [1.5, 9, 0, 0],
-                [0, 9, 0, 0]
+                [3, 0, 0, 0],
+                [3, 12, 0, 0],
+                [0, 12, 0, 0]
             ],
             "boundingBox": [
                 [0, 0, 0, 0],
-                [1.5, 0, 0, 0],
-                [1.5, 9, 0, 0],
-                [0, 9, 0, 0]
+                [3, 0, 0, 0],
+                [3, 12, 0, 0],
+                [0, 12, 0, 0]
             ],
             "tileVertices": [
                 [
                     [0, 0, 0, 0],
-                    [1.5, 0, 0, 0],
-                    [1.5, 9, 0, 0],
-                    [0, 9, 0, 0]
+                    [3, 0, 0, 0],
+                    [3, 12, 0, 0],
+                    [0, 12, 0, 0]
                 ]
             ],
             "connection": [
-                [-1.5, 0, 0, -1],
-                [-0.75, -9, -1, -0.5],
-                [1.5, 0, 0, 1],
-                [0.75, 9, 1, 0.5]
+                [-3, 0, 0, -1],
+                [-0.75, -12, -1, -0.5],
+                [3, 0, 0, 1],
+                [0.75, 12, 1, 0.5]
             ],
             "tileProportion": [
-                [1, 1], 
-                [2, 1]
+                [1, 1]
             ]
         },
         {
             "tileClass": 1,
-            "name": "Herringbone single horizontal basic W/Lratio 1:2",
+            "name": "Herringbone 1:2",
             "patternVertices":[
                 [0, 0, 0, 0],
                 [4.5, 0, 0, 1],
@@ -313,16 +308,14 @@
                 [-3, 3, 1, -1]
             ],
             "tileProportion": [
-                [1, 1],
                 [4, 3],
                 [2, 1],
-                [8, 3],
-                [4, 1]    
+                [4, 1]
             ]
         },
         {
             "tileClass": 1,
-            "name": "Herringbone single horizontal basic W/Lratio 1:3",
+            "name": "Herringbone 1:3",
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -364,7 +357,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Herringbone single horizontal blunt W/Lratio 1:1.5",
+            "name": "Blunt Herringbone",
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -406,7 +399,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Herringbone single horizontal narrow W/Lratio 1:4",
+            "name": "Narrow Herringbone",
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -490,7 +483,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Diamond basic",
+            "name": "Diamond Grid Pattern",
             "patternVertices": [
                 [0.7071, 0, 0, 0],
                 [1.4142, 0.7071, 0, 0],
@@ -637,8 +630,7 @@
                 [0, 12, 2.5, 0]
             ],
             "tileProportion": [
-                [1, 1],
-                [2, 1]
+                [1, 1]
             ]
         },
         {

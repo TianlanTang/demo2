@@ -5,7 +5,7 @@ import { calAnchors_clipper } from './calAnchors_clipper';
 export const pattern = create((set, get) => ({
 
     // pattern name
-    patternName: "Grid",
+    patternName: "Square Grid Pattern",
     // pattern proportion
     proportionIndex: 4,
 
@@ -120,7 +120,7 @@ export const pattern = create((set, get) => ({
 
         // used to find the standard size of the pattern
         // which is used to calulate the costs
-        const propIndices = pattern.propIndices[Number(proportionIndex)];
+       // const propIndices = pattern.propIndices[Number(proportionIndex)];
 
         const { patternVertices, boundingBox, connection, tileVertices } = pattern;
         const [x, y] = anchor;
@@ -156,7 +156,7 @@ export const pattern = create((set, get) => ({
             totalAreaCovered: totalAreaCovered,
             effectiveSurfaceArea: effectiveSurfaceArea,
             boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]],
-            propIndices: propIndices,
+           // propIndices: propIndices,
         });
 
         // Check for duplicate anchors
