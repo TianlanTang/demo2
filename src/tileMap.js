@@ -22,13 +22,23 @@ const TileMap = () => {
     const [fill, setFill] = useState('none'); // Control whether to fill the holes
     const [IsShowIndex, setIsShowIndex] = useState(false); // Control whether to show tile index
 
+    // tile that is currently hovered
+    const [hoveredTile, setHoveredTile] = useState({ groupIndex: null, tileIndex: null });
+
+    // calculate distance between two points
+    const getDistance = (p1, p2) => {
+        const [x1, y1] = p1;
+        const [x2, y2] = p2;
+        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 0.2).toFixed(0);
+    };
+
     useEffect(() => {
         if (animate) {
             // Incrementally increase the number of visible tiles
             if (visibleTiles < tiles.flat().length) {
                 const timer = setTimeout(() => {
                     setVisibleTiles(visibleTiles + 1);
-                }, 100); // Adjust the delay (in milliseconds) for animation speed
+                }, 100); 
                 return () => clearTimeout(timer);
             }
         }
@@ -36,13 +46,13 @@ const TileMap = () => {
 
     useEffect(() => {
         if (!animate) {
-            // Ensure all tiles are visible when animation is disabled
+            // Reset visible tiles to show all tiles when animation is disabled
             setVisibleTiles(tiles.flat().length);
         }
-    }, [tiles, animate]); // Re-run when tiles or animation state changes
+    }, [tiles, animate]);
 
     const handleReload = () => {
-        setVisibleTiles(0); // Reset visible tiles
+        setVisibleTiles(0);
         if (!animate) {
             // If animation is disabled, immediately show all tiles
             setVisibleTiles(tiles.flat().length);
@@ -50,8 +60,76 @@ const TileMap = () => {
     };
 
     const toggleFill = () => {
-        setFill(fill === 'none' ? 'white' : 'none'); // Toggle fill color
-    }
+        setFill(fill === 'none' ? 'white' : 'none');
+    };
+
+    // render polygons and text separately
+    const polygons = [];
+    const texts = [];
+
+    // collect all polygons and texts
+    tiles.forEach((tileGroup, groupIndex) => {
+        tileGroup.forEach(({ tile, draw }, tileIndex) => {
+            const globalIndex = groupIndex * tileGroup.length + tileIndex;
+            if (!draw || globalIndex >= visibleTiles) return; 
+
+            // push the polygon to the array
+            polygons.push(
+                <polygon
+                    key={`polygon-${groupIndex}-${tileIndex}`}
+                    points={tile.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(' ')}
+                    fill={tileColors[tileIndex % tileColors.length]}
+                    stroke="#000"
+                    strokeWidth="0.5"
+                    onMouseEnter={() => setHoveredTile({ groupIndex, tileIndex })}
+                    onMouseLeave={() => setHoveredTile({ groupIndex: null, tileIndex: null })}
+                />
+            );
+
+            // push the text to the array
+            if (IsShowIndex) {
+                const cx = tile.reduce((sum, [x]) => sum + x, 0) / tile.length + shiftX;
+                const cy = tile.reduce((sum, [, y]) => sum + y, 0) / tile.length + shiftY;
+
+                texts.push(
+                    <text
+                        key={`indexText-${groupIndex}-${tileIndex}`}
+                        x={cx}
+                        y={cy}
+                        fill="black"
+                        fontSize="12"
+                        textAnchor="middle"
+                        alignmentBaseline="middle"
+                    >
+                        {tileIndex}
+                    </text>
+                );
+            }
+
+            // draw the distance between the vertices
+            if (hoveredTile.groupIndex === groupIndex && hoveredTile.tileIndex === tileIndex) {
+                for (let i = 0; i < tile.length; i++) {
+                    const j = (i + 1) % tile.length;
+                    const xMid = (tile[i][0] + tile[j][0]) / 2 + shiftX;
+                    const yMid = (tile[i][1] + tile[j][1]) / 2 + shiftY;
+
+                    texts.push(
+                        <text
+                            key={`edge-${groupIndex}-${tileIndex}-${i}`}
+                            x={xMid}
+                            y={yMid}
+                            fill="black"
+                            fontSize="12"
+                            textAnchor="middle"
+                            alignmentBaseline="middle"
+                        >
+                            {getDistance(tile[i], tile[j])}
+                        </text>
+                    );
+                }
+            }
+        });
+    });
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -78,67 +156,44 @@ const TileMap = () => {
                 height={height}
                 style={{ border: '1px solid #000', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}
             >
-                {/* Define mask */}
+                {/*Mask */}
                 <defs>
                     <mask id="surfaceMask">
                         <rect width={width} height={height} fill="white" />
                         <polygon
-                            points={surfaceVertices.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                            points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
                             fill="black"
                         />
                     </mask>
                 </defs>
 
-                {/* draw Tiles */}
-                {tiles.map((tileGroup, tileGroupIndex) => (
-                    tileGroup.map(({ tile, draw }, tileIndex) => (
-                        draw && (tileGroupIndex * tileGroup.length + tileIndex < visibleTiles) ? (
-                            <g key={`tile-${tileGroupIndex}-quad-${tileIndex}`}>
-                                {/* Tile Polygon */}
-                                <polygon
-                                    points={tile.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                                    fill={tileColors[tileIndex % tileColors.length]} 
-                                    stroke="#000"
-                                    strokeWidth="0.5"
-                                />
-                                {/* Tile Index */}
-                                {IsShowIndex && <text
-                                    x={tile.reduce((sum, [x, y]) => sum + x, 0) / tile.length + shiftX}
-                                    y={tile.reduce((sum, [x, y]) => sum + y, 0) / tile.length + shiftY}
-                                    fill="black"
-                                    fontSize="12"
-                                    textAnchor="middle"
-                                    alignmentBaseline="middle"
-                                >
-                                    {tileIndex}
-                                </text>}
-                            </g>
-                        ) : null
-                    ))
-                ))}
+                {/* polygons */}
+                {polygons}
 
-
-                {/* draw Holes */}
+                { /* tiles */}
                 {holeVertices.map((hole, index) => (
                     <polygon
                         key={`hole-${index}`}
-                        points={hole.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
+                        points={hole.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
                         fill={fill}
                         stroke="yellow"
                         strokeWidth="1"
                     />
                 ))}
 
-                {/* Apply Mask */}
+                {/*Mask */}
                 <rect width={width} height={height} fill={fill} mask="url(#surfaceMask)" />
 
-                {/* draw Surface */}
+                {/* Surface*/}
                 <polygon
-                    points={surfaceVertices.map(([x, y]) => `${x+shiftX},${y+shiftY}`).join(" ")}
-                    fill='none'
+                    points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
+                    fill="none"
                     stroke="red"
                     strokeWidth="1"
                 />
+
+                {/* texts */}
+                {texts}
             </svg>
         </div>
     );

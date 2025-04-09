@@ -22,11 +22,15 @@ export const calAnchors_clipper = (
     const surfacePath = convertPolygon(surfaceVertices);
     const holePaths = holeVertices.map(hole => convertPolygon(hole));
     const effectiveSurfacePaths = computeEffectiveSurfacePaths(surfacePath, holePaths);
+    const effectiveSurfaceArea = areaFromPaths(effectiveSurfacePaths); // Calculate effective surface area
 
     const anchors = [];
     const queue = [[anchor[0], anchor[1]]];
     const visited = new Set();
     visited.add(anchor.toString());
+
+    // calculate the area of the total area covered by the tiles
+    let areaCovered = 0;
 
     let count = 0;
     while (queue.length > 0) {
@@ -47,6 +51,7 @@ export const calAnchors_clipper = (
 
         if (!compositeAllOutside) {
             let compositeTileAnchors = [];
+            let localAreaCovered = 0; 
             if (compositeAllInside) {
                 compositeTileAnchors = tileVertices.map(tile => {
                     const tilePoly = tile.map(([dx, dy]) => [ax + dx, ay + dy]);
@@ -59,9 +64,11 @@ export const calAnchors_clipper = (
                     const tileIntersection = clipPolygon(tilePath, effectiveSurfacePaths);
                     const tileIntersectionArea = areaFromPaths(tileIntersection);
                     const draw = tileIntersectionArea > 0;
+                    localAreaCovered += tileIntersectionArea; 
                     return { tile: tilePoly, draw };
                 });
             }
+            areaCovered += localAreaCovered; 
             if (compositeTileAnchors.some(item => item.draw)) {
                 anchors.push(compositeTileAnchors);
             }
@@ -86,7 +93,7 @@ export const calAnchors_clipper = (
         }
     }
     console.log(`Processed ${count} anchors`);
-    return anchors;
+    return {anchors, areaCovered, effectiveSurfaceArea}; // Include effective surface area in the result
 };
 
 // Convert a 2D point array [[x, y], ...] to Clipper format [{X, Y}, ...]
