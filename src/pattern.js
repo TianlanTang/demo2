@@ -24,9 +24,7 @@ export const pattern = create((set, get) => ({
     OHoleVertices: [],
     // holes vertices pixel
     holeVertices: [
-        [[100, 100], [400, 100], [400, 260], [100, 260]],
-        [[200, 300], [400, 300], [400, 400], [200, 400]],
-        [[500, 200], [600, 200], [600, 460], [500, 460]],
+
     ],
 
     // decide hot to deal with the grout
