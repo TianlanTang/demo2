@@ -26,6 +26,9 @@ const TileMap = () => {
     // tile that is currently hovered
     const [hoveredTile, setHoveredTile] = useState({ groupIndex: null, tileIndex: null });
 
+    // Add a new state to track expanded indices per key
+    const [expandedIndices, setExpandedIndices] = useState({});
+
     // calculate distance between two points
     const getDistance = (p1, p2) => {
         const [x1, y1] = p1;
@@ -70,7 +73,7 @@ const TileMap = () => {
 
     // collect all polygons and texts
     tiles.forEach((tileGroup, groupIndex) => {
-        tileGroup.forEach(({ tile, draw }, tileIndex) => {
+        tileGroup.forEach(({ tile, draw, id }, tileIndex) => {
             const globalIndex = groupIndex * tileGroup.length + tileIndex;
             if (!draw || globalIndex >= visibleTiles) return; 
 
@@ -102,7 +105,7 @@ const TileMap = () => {
                         textAnchor="middle"
                         alignmentBaseline="middle"
                     >
-                        {tileIndex}
+                        {id}
                     </text>
                 );
             }
@@ -133,115 +136,150 @@ const TileMap = () => {
     });
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ width: '100%', padding: '10px' }}>
             {/* Buttons container */}
             <div
                 style={{
-                    position: 'absolute',
-                    left: '-150px', // Adjust relative to SVG
-                    top: '50%', // Center vertically relative to SVG
-                    transform: 'translateY(-50%)',
                     display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                    marginBottom: '10px'
                 }}
             >
-                <button onClick={handleReload} style={{ marginBottom: '10px' }}>
-                    Reload
-                </button>
-                <button onClick={() => setAnimate(!animate)} style={{ marginBottom: '10px' }}>
+                <button onClick={handleReload}>Reload</button>
+                <button onClick={() => setAnimate(!animate)}>
                     {animate ? 'Disable Animation' : 'Enable Animation'}
                 </button>
-                <button onClick={toggleFill} style={{ marginTop: '10px' }}>
+                <button onClick={toggleFill}>
                     {fill === 'none' ? 'Add Mask' : 'No Mask'}
                 </button>
-                <button onClick={() => setIsShowIndex(!IsShowIndex)} style={{ marginTop: '10px' }}>
+                <button onClick={() => setIsShowIndex(!IsShowIndex)}>
                     {IsShowIndex ? 'Hide Index' : 'Show Index'}
                 </button>
             </div>
 
-            {/* SVG container */}
-            <svg
-                id="tile_svg"
-                width={width}
-                height={height}
-                style={{ border: '1px solid #000', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}
-            >
-                {/*Mask */}
-                <defs>
-                    <mask id="surfaceMask">
-                        <rect width={width} height={height} fill="white" />
-                        <polygon
-                            points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                            fill="black"
-                        />
-                    </mask>
-                </defs>
-
-                {/* polygons */}
-                {polygons}
-
-                { /* tiles */}
-                {holeVertices.map((hole, index) => (
-                    <polygon
-                        key={`hole-${index}`}
-                        points={hole.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                        fill={fill}
-                        stroke="yellow"
-                        strokeWidth="1"
-                    />
-                ))}
-
-                {/*Mask */}
-                <rect width={width} height={height} fill={fill} mask="url(#surfaceMask)" />
-
-                {/* Surface*/}
-                <polygon
-                    points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                    fill="none"
-                    stroke="red"
-                    strokeWidth="1"
-                />
-
-                {/* texts */}
-                {texts}
-            </svg>
-
-            {/* Dictionary display */}
+            {/* Main content container */}
             <div
                 style={{
-                    position: 'absolute',
-                    right: '-250px', // Adjust relative to SVG
-                    top: '50%', // Center vertically relative to SVG
-                    transform: 'translateY(-50%)',
-                    maxHeight: '600px',
-                    overflowY: 'auto',
-                    fontSize: '12px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '20px',
+                    alignItems: 'flex-start'
                 }}
             >
-                <h3>Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)}</h3>
-                <ul>
-                    {Object.entries(tileCounts).map(([key, value], index) => (
-                        <li key={`complete-${index}`}>
-                            <strong>{key}:</strong> {value[0]}
-                            <svg
-                                width="100"
-                                height="120"
-                                style={{ display: 'block', marginTop: '5px' }}
-                            >
-                                {value[1].map((tile, tileIdx) => (
-                                    <polygon
-                                        key={`tile-${key}-${tileIdx}`}
-                                        points={tile.map(([x, y]) => `${x},${y}`).join(' ')}
-                                        fill= "#2196F3"
-                                        stroke="black"
-                                        strokeWidth="0.5"
-                                    />
-                                ))}
-                            </svg>
-                        </li>
+                {/* SVG container */}
+                <svg
+                    id="tile_svg"
+                    width={width}
+                    height={height}
+                    style={{
+                        border: '1px solid #000',
+                        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                        maxWidth: '100%',
+                        height: 'auto'
+                    }}
+                >
+                    {/*Mask */}
+                    <defs>
+                        <mask id="surfaceMask">
+                            <rect width={width} height={height} fill="white" />
+                            <polygon
+                                points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
+                                fill="black"
+                            />
+                        </mask>
+                    </defs>
+
+                    {/* polygons */}
+                    {polygons}
+
+                    { /* tiles */}
+                    {holeVertices.map((hole, index) => (
+                        <polygon
+                            key={`hole-${index}`}
+                            points={hole.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
+                            fill={fill}
+                            stroke="yellow"
+                            strokeWidth="1"
+                        />
                     ))}
-                </ul>
+
+                    {/*Mask */}
+                    <rect width={width} height={height} fill={fill} mask="url(#surfaceMask)" />
+
+                    {/* Surface*/}
+                    <polygon
+                        points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
+                        fill="none"
+                        stroke="red"
+                        strokeWidth="1"
+                    />
+
+                    {/* texts */}
+                    {texts}
+                </svg>
+
+                {/* Dictionary display */}
+                <div
+                    style={{
+                        width: '350px',
+                        maxHeight: '600px',
+                        overflowY: 'auto',
+                        fontSize: '12px'
+                    }}
+                >
+                    <h3>Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)}</h3>
+                    <ul>
+                        {Object.entries(tileCounts).map(([key, value], index) => (
+                            <li key={`complete-${index}`}>
+                                <strong>counts: </strong> {value[0]}
+                                <br />
+                                <strong>edges length: </strong> {value[2]}
+                                <br />
+                                <strong>Indices: </strong> 
+                                <span 
+                                    onClick={() => setExpandedIndices(prev => ({ ...prev, [key]: !prev[key] }))}
+                                    style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+                                >
+                                    {expandedIndices[key] ? 'Hide Indices' : 'Show Indices'}
+                                </span>
+                                {expandedIndices[key] && (
+                                    <div style={{ marginTop: '5px' }}>
+                                        {
+                                            value[3].reduce((acc, curr, i) => {
+                                                if (i % 5 === 0 && i !== 0) {
+                                                    acc.push(<br key={`br-${i}`} />);
+                                                }
+                                                acc.push(curr);
+                                                if (i !== value[3].length - 1) {
+                                                    acc.push(', ');
+                                                }
+                                                return acc;
+                                            }, [])
+                                        }
+                                    </div>
+                                )}
+                                <svg
+                                    width="280"
+                                    height="280"
+                                    style={{ display: 'block', marginTop: '5px' }}
+                                >
+                                    {value[1].map((tile, tileIdx) => (
+                                        <polygon
+                                            key={`tile-${key}-${tileIdx}`}
+                                            points={tile.map(([x, y]) => `${x},${y}`).join(' ')}
+                                            fill= "#2196F3"
+                                            stroke="black"
+                                            strokeWidth="0.5"
+                                        />
+                                    ))}
+                                </svg>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         </div>
     );

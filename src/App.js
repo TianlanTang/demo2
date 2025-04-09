@@ -5,22 +5,21 @@ import { useEffect } from 'react';
 
 function App() {
     useEffect(() => {
-    pattern.getState().init();
-}, []);
+        pattern.getState().init();
+    }, []);
     
     return (
         <div style={{
             display: 'flex',
-            flexDirection: 'column',  // Change direction to column
+            flexDirection: 'column',
             height: '100vh',
-            overflow: 'hidden'
+            overflow: 'auto'
         }}>
-
             {/* Area for canvas */}
             <div style={{
-                flex: 1,
+                flex: '0 0 60vh', // set canvas area to 60% of viewport height
                 display: 'flex',
-                justifyContent: 'center',  // Center the TileMap view
+                justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: '#fff'
             }}>
@@ -29,7 +28,8 @@ function App() {
 
             {/* Area for controls */}
             <div style={{
-                width: '100%',  // Ensure it takes full width
+                flex: '0 0 40vh', // set controls area to 40% of viewport height
+                width: '100%',
                 padding: '10px',
                 boxSizing: 'border-box',
                 backgroundColor: '#f9f9f9',
@@ -37,7 +37,6 @@ function App() {
             }}>
                 <Controls />
             </div>
-
         </div>
     );
 }

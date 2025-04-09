@@ -169,7 +169,6 @@ export const pattern = create((set, get) => ({
         if (uniqueAnchors.length !== anchors.length) {
             alert("Duplicate anchors found");
         }
-        console.log("Anchors calculated:", tileCounts);
         console.timeEnd("calAnchors");
         console.log("Pattern initialized");
     },

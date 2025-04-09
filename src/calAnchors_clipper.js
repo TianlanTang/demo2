@@ -1,5 +1,8 @@
 import ClipperLib from "clipper-lib";
 
+// Use an integer scale factor to minimize floating point errors
+const SCALE = 1e8;
+
 export const calAnchors_clipper = (
     anchor,
     boundingBox,
@@ -14,9 +17,6 @@ export const calAnchors_clipper = (
     if (!anchor || !connection || !surfaceVertices || !boundingBox || !patternVertices || !holeVertices) {
         throw new Error('Missing data');
     }
-
-    // Ensure all vertices are rounded to 4 decimal places
-    const round = (num) => Number(num.toFixed(4));
 
     // Convert surface and holes to Clipper format
     const surfacePath = convertPolygon(surfaceVertices);
@@ -33,6 +33,7 @@ export const calAnchors_clipper = (
     let areaCovered = 0;
 
     const tileCounts = {}; // Dictionary for count tiles
+    let globalTileId = 1; // Added auto-increment tile id starting from 1
 
     let count = 0;
     while (queue.length > 0) {
@@ -55,31 +56,49 @@ export const calAnchors_clipper = (
             let compositeTileAnchors = [];
             let localAreaCovered = 0; 
             if (compositeAllInside) {
+                // eslint-disable-next-line no-loop-func
                 compositeTileAnchors = tileVertices.map(tile => {
                     const tilePoly = tile.map(([dx, dy]) => [ax + dx, ay + dy]);
-                    const edgeLengthsKey = tilePoly.map(([x1, y1], i) => {
+                    const minX = Math.min(...tilePoly.map(([x]) => x));
+                    const minY = Math.min(...tilePoly.map(([_, y]) => y));
+                    const tileVertices = [tilePoly.map(([x, y]) => {
+                        const alignedPoint = [x - minX, y - minY];
+                        const pointPath = convertPolygon([alignedPoint]);
+                        const intersection = clipPolygon(pointPath, effectiveSurfacePaths);
+                        if (intersection.length > 0) {
+                            return intersection[0].map(({ X, Y }) => [X / SCALE, Y / SCALE])[0];
+                        }
+                        return alignedPoint;
+                    })];
+                    const tileVerticesKey = tileVertices
+                        .map(polygon =>
+                        polygon.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]) // Sort within each polygon
+                        .map(point => point.map(num => Number(num).toFixed(2))) 
+                        )
+                        .sort((a, b) => {
+                        // Flatten polygons into strings for sorting
+                        const aStr = a.flat().toString();
+                        const bStr = b.flat().toString();
+                        return aStr.localeCompare(bStr);
+                        })
+                        .flat()
+                        .toString();
+                    const edgeLengths = tilePoly.map(([x1, y1], i) => {
                         const [x2, y2] = tilePoly[(i + 1) % tilePoly.length];
-                        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 0.2).toFixed(0);
+                        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 ) / 0.2).toFixed(0);
                     }).join(',');
-                    tileCounts[edgeLengthsKey] = tileCounts[edgeLengthsKey] || [0, null];
-                    tileCounts[edgeLengthsKey][0] += 1; // Increment count
-                    if (tileCounts[edgeLengthsKey][1] === null) {
-                        const minX = Math.min(...tilePoly.map(([x]) => x));
-                        const minY = Math.min(...tilePoly.map(([_, y]) => y));
-                        // Wrap the vertex array in an array
-                        tileCounts[edgeLengthsKey][1] = [ tilePoly.map(([x, y]) => {
-                            const alignedPoint = [x - minX, y - minY]; // Align by subtracting min values
-                            const pointPath = convertPolygon([alignedPoint]);
-                            const intersection = clipPolygon(pointPath, effectiveSurfacePaths);
-                            if (intersection.length > 0) {
-                                return intersection[0].map(({ X, Y }) => [Number(X), Number(Y)])[0]; // Use intersection point
-                            }
-                            return alignedPoint; // Use aligned point if no intersection
-                        }) ];
+                    const currentId = globalTileId++;
+                    if (!tileCounts[tileVerticesKey]) {
+                        tileCounts[tileVerticesKey] = [0, tileVertices, edgeLengths, []]; // Added array for ids
                     }
-                    return { tile: tilePoly, draw: true };
+                    tileCounts[tileVerticesKey][0] += 1; // Increment count
+                    tileCounts[tileVerticesKey][3].push(currentId); // Append current id to array
+                    console.log(`Tile vertices key: ${tileVerticesKey}, Count: ${tileCounts[tileVerticesKey][0]}`);
+                    // Return tile with auto-increment id
+                    return { tile: tilePoly, draw: true, id: currentId };
                 });
             } else {
+                // eslint-disable-next-line no-loop-func
                 compositeTileAnchors = tileVertices.map(tile => {
                     const tilePoly = tile.map(([dx, dy]) => [ax + dx, ay + dy]);
                     const tilePath = convertPolygon(tilePoly);
@@ -88,36 +107,54 @@ export const calAnchors_clipper = (
                     const draw = tileIntersectionArea > 0;
                     if (draw) {
                         const clippedTile = tileIntersection.map(path =>
-                            path.map(({ X, Y }) => [Number(X), Number(Y)]) // Ensure numeric values
+                            path.map(({ X, Y }) => [X / SCALE, Y / SCALE])
                         );
-                        const intersectEdgeLengthsKey = clippedTile
-                            .flatMap(tile => // Flatten the paths to handle multiple polygons
+                        const allPoints = clippedTile.flat();
+                        const minX = Math.min(...allPoints.map(([x]) => x));
+                        const minY = Math.min(...allPoints.map(([_, y]) => y));
+                        const tileVertices = clippedTile.map(tile =>
+                            tile.map(([x, y]) => {
+                                const alignedPoint = [x - minX, y - minY];
+                                const pointPath = convertPolygon([alignedPoint]);
+                                const intersection = clipPolygon(pointPath, effectiveSurfacePaths);
+                                if (intersection.length > 0) {
+                                    return intersection[0].map(({ X, Y }) => [X / SCALE, Y / SCALE])[0];
+                                }
+                                return alignedPoint;
+                            })
+                        );
+                        const tileVerticesKey = tileVertices
+                            .map(polygon =>
+                            polygon.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1])
+                            .map(point => point.map(num => Number(num).toFixed(2))) 
+                            // Sort within each polygon
+                            )
+                            .sort((a, b) => {
+                            // Flatten polygons into strings for sorting
+                            const aStr = a.flat().toString();
+                            const bStr = b.flat().toString();
+                            return aStr.localeCompare(bStr);
+                            })
+                            .flat()
+                            .toString();                        
+                        const intersectEdgeLengths = clippedTile
+                            .flatMap(tile => 
                                 tile.map(([x1, y1], i) => {
                                     const [x2, y2] = tile[(i + 1) % tile.length];
                                     return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 0.2).toFixed(0);
                                 })
                             )
                             .join(',');
-                        tileCounts[intersectEdgeLengthsKey] = tileCounts[intersectEdgeLengthsKey] || [0, null];
-                        tileCounts[intersectEdgeLengthsKey][0] += 1; // Increment count
-                        if (tileCounts[intersectEdgeLengthsKey][1] === null) {
-                            const allPoints = clippedTile.flat(); // Flatten all points from clippedTile
-                            const minX = Math.min(...allPoints.map(([x]) => x));
-                            const minY = Math.min(...allPoints.map(([_, y]) => y));
-                            // Store separated vertex arrays for each continuous polygon
-                            tileCounts[intersectEdgeLengthsKey][1] = clippedTile.map(tile =>
-                                tile.map(([x, y]) => {
-                                    const alignedPoint = [x - minX, y - minY]; // Align by subtracting min values
-                                    const pointPath = convertPolygon([alignedPoint]);
-                                    const intersection = clipPolygon(pointPath, effectiveSurfacePaths);
-                                    if (intersection.length > 0) {
-                                        return intersection[0].map(({ X, Y }) => [Number(X), Number(Y)])[0]; // Use intersection point
-                                    }
-                                    return alignedPoint; // Use aligned point if no intersection
-                                })
-                            );
+                        const currentId = globalTileId++;
+                        if (!tileCounts[tileVerticesKey]) {
+                            tileCounts[tileVerticesKey] = [0, tileVertices, intersectEdgeLengths, []]; // Added array for ids
                         }
+                        tileCounts[tileVerticesKey][0] += 1;
+                        tileCounts[tileVerticesKey][3].push(currentId);
+                        console.log(`Tile vertices key: ${tileVerticesKey}, Count: ${tileCounts[tileVerticesKey][0]}`);
                         localAreaCovered += tileIntersectionArea;
+                        // Return with id if draw is true
+                        return { tile: tilePoly, draw, id: currentId };
                     }
                     return { tile: tilePoly, draw };
                 });
@@ -131,7 +168,8 @@ export const calAnchors_clipper = (
         // BFS: Explore adjacent grouped shapes
         for (const [dx, dy] of connection) {
             const [nx, ny] = [ax + dx, ay + dy];
-            const key = [round(nx), round(ny)].toString();
+            // Changed key generation to use integer coordinates from the integer scale
+            const key = [Math.round(nx * SCALE), Math.round(ny * SCALE)].toString();
             if (visited.has(key)) continue;
 
             const nextBoundingBox = boundingBox.map(([dx, dy]) => [nx + dx, ny + dy]);
@@ -150,9 +188,9 @@ export const calAnchors_clipper = (
     return {anchors, areaCovered, effectiveSurfaceArea, tileCounts}; // Include dictionaries in the result
 };
 
-// Convert a 2D point array [[x, y], ...] to Clipper format [{X, Y}, ...]
+// Convert a 2D point array [[x, y], ...] to Clipper format using integer scaling
 const convertPolygon = (polygon) => {
-    return polygon.map(([x, y]) => ({ X: x, Y: y }));
+    return polygon.map(([x, y]) => ({ X: Math.round(x * SCALE), Y: Math.round(y * SCALE) }));
 };
 
 // Compute the effective surface by subtracting holes from the outer boundary
