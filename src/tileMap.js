@@ -207,7 +207,13 @@ const TileMap = () => {
                     ))}
 
                     {/*Mask */}
-                    <rect width={width} height={height} fill={fill} mask="url(#surfaceMask)" />
+                    <rect
+                        width={width}
+                        height={height}
+                        fill={fill}
+                        mask="url(#surfaceMask)"
+                        style={{ pointerEvents: 'none' }} // Allow mouse events to pass through
+                    />
 
                     {/* Surface*/}
                     <polygon
@@ -215,6 +221,7 @@ const TileMap = () => {
                         fill="none"
                         stroke="red"
                         strokeWidth="1"
+                        style={{ pointerEvents: 'none' }} // Allow mouse events to pass through
                     />
 
                     {/* texts */}
