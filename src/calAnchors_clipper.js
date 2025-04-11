@@ -10,7 +10,8 @@ export const calAnchors_clipper = (
     connection,
     surfaceVertices,
     holeVertices,
-    tileVertices
+    tileVertices,
+    scale,
 ) => {
     console.log("Start calculating Anchors");
 
@@ -93,7 +94,6 @@ export const calAnchors_clipper = (
                     }
                     tileCounts[tileVerticesKey][0] += 1; // Increment count
                     tileCounts[tileVerticesKey][3].push(currentId); // Append current id to array
-                    console.log(`Tile vertices key: ${tileVerticesKey}, Count: ${tileCounts[tileVerticesKey][0]}`);
                     // Return tile with auto-increment id
                     return { tile: tilePoly, draw: true, id: currentId };
                 });
@@ -151,7 +151,6 @@ export const calAnchors_clipper = (
                         }
                         tileCounts[tileVerticesKey][0] += 1;
                         tileCounts[tileVerticesKey][3].push(currentId);
-                        console.log(`Tile vertices key: ${tileVerticesKey}, Count: ${tileCounts[tileVerticesKey][0]}`);
                         localAreaCovered += tileIntersectionArea;
                         // Return with id if draw is true
                         return { tile: tilePoly, draw, id: currentId };
@@ -184,8 +183,20 @@ export const calAnchors_clipper = (
             visited.add(key);
         }
     }
-    console.log(`Processed ${count} anchors`);
-    return {anchors, areaCovered, effectiveSurfaceArea, tileCounts}; // Include dictionaries in the result
+
+    // Convert pixel area to real-world area in square meters
+    const realAreaCovered = Number((areaCovered / (scale * scale) / 1000000).toFixed(2)); 
+    const realEffectiveSurfaceArea = Number((effectiveSurfaceArea / (scale * scale) / 1000000).toFixed(2));
+    
+    console.log("Real area covered (m²):", realAreaCovered);
+    console.log("Real effective surface area (m²):", realEffectiveSurfaceArea);
+
+    return {
+        anchors, 
+        tileAreaCovered: realAreaCovered, 
+        effectiveSurfaceArea: realEffectiveSurfaceArea, 
+        tileCounts
+    };
 };
 
 // Convert a 2D point array [[x, y], ...] to Clipper format using integer scaling
@@ -229,5 +240,6 @@ const areaFromPaths = (paths) => {
     for (const path of paths) {
         total += Math.abs(ClipperLib.Clipper.Area(path));
     }
-    return total;
+    return total / (SCALE * SCALE);
 };
+

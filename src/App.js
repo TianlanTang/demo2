@@ -2,6 +2,7 @@ import TileMap from './tileMap';
 import Controls from './controls';
 import { pattern } from './pattern';
 import { useEffect } from 'react';
+import CostInfo from './costInfo';
 
 function App() {
     useEffect(() => {
@@ -15,20 +16,33 @@ function App() {
             height: '100vh',
             overflow: 'auto'
         }}>
-            {/* Area for canvas */}
+            {/* Row container for CostInfo and Canvas */}
             <div style={{
-                flex: '0 0 60vh', // set canvas area to 60% of viewport height
                 display: 'flex',
-                justifyContent: 'center',
+                flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#fff'
+                justifyContent: 'center',
+                flex: '0 0 60vh' // canvas area height remains unchanged
             }}>
-                <TileMap />
+                {/* Place CostInfo to the left */}
+                <div style={{ marginRight: '20px' }}>
+                    <CostInfo />
+                </div>
+                {/* Canvas area */}
+                <div style={{
+                    flex: '0 0 auto',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#fff'
+                }}>
+                    <TileMap />
+                </div>
             </div>
-
+            
             {/* Area for controls */}
             <div style={{
-                flex: '0 0 40vh', // set controls area to 40% of viewport height
+                flex: '0 0 40vh',
                 width: '100%',
                 padding: '10px',
                 boxSizing: 'border-box',
@@ -38,7 +52,7 @@ function App() {
                 <Controls />
             </div>
         </div>
-    );
+    );  
 }
 
 export default App;

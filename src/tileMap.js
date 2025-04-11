@@ -9,7 +9,7 @@ const TileMap = () => {
         tileColors,
         surfaceVertices,
         holeVertices,
-        tileCounts
+        tileCounts,
     } = useStore(pattern);
 
     const width = 900;
@@ -147,7 +147,9 @@ const TileMap = () => {
                     marginBottom: '10px'
                 }}
             >
-                <button onClick={handleReload}>Reload</button>
+                <button onClick={handleReload}>
+                    Reload
+                </button>
                 <button onClick={() => setAnimate(!animate)}>
                     {animate ? 'Disable Animation' : 'Enable Animation'}
                 </button>

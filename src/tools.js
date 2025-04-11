@@ -53,11 +53,12 @@ export const loadProps = async () => {
     try {
         const response = await fetch("/tileProps.json");
         const data = await response.json();
-        return data.tileProps;
+        return [data.CommonProps, data.TileProps];
     } catch (error) {
         console.error("Error loading tile sizes", error);
         return [];
     }
 };
+
 
 
