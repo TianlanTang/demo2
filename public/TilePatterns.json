@@ -1407,7 +1407,7 @@
             "tileClass": 1,
             "name": "Narrow frame",
             "propIndices": [
-                
+                [27, 1, 27, 6]
             ],
             "patternVertices": [
                 [0, 0, 0, 0],
