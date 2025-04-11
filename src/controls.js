@@ -179,7 +179,7 @@ const Controls = () => {
                             >
                                 {tileProportions.map((proportion, index) => (
                                     <MenuItem key={index} value={index}>
-                                        {`${selectedBaseSize[0] * proportion[0] / proportion[1]} mm x ${selectedBaseSize[1] * proportion[0] / proportion[1]} mm `}
+                                        {`${(selectedBaseSize[0] * proportion[0] / proportion[1]).toFixed(0)} mm x ${(selectedBaseSize[1] * proportion[0] / proportion[1]).toFixed(0)} mm `}
                                     </MenuItem>
                                 ))}
                             </Select>
