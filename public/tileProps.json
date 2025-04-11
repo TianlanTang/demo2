@@ -198,6 +198,38 @@
             "Length": 900,
             "TileCost": 73,
             "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 23,
+            "Name": "400 x 600",
+            "Width": 400,
+            "Length": 600,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 24,
+            "Name": "175 x 175",
+            "Width": 175,
+            "Length": 175,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 25,
+            "Name": "125 x 375",
+            "Width": 125,
+            "Length": 375,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 26,
+            "Name": "375 x 375",
+            "Width": 375,
+            "Length": 375,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
         }
     ]
 }
