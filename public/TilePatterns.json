@@ -61,7 +61,7 @@
         {
             "tileClass": 1,
             "name": "Staggered Brickwork 1:2",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [3, 0, 0, 0],
@@ -97,7 +97,7 @@
         {
             "tileClass": 1,
             "name": "Staggered Brickwork 1:1.5",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -133,7 +133,7 @@
         {
             "tileClass": 1,
             "name": "Square Brickwork",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [1, 0, 0, 0],
@@ -176,7 +176,7 @@
         {
             "tileClass": 1,
             "name": "Vertical Brickwork Basic",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [1.5, 0, 0, 0],
@@ -211,7 +211,7 @@
         {
             "tileClass": 1,
             "name": "Vertical Brickwork Medium",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [4, 0, 0, 0],
@@ -245,7 +245,7 @@
         {
             "tileClass": 1,
             "name": "Vertical Brickwork Narrow",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [3, 0, 0, 0],
@@ -279,7 +279,7 @@
         {
             "tileClass": 1,
             "name": "Herringbone 1:2",
-            "propIndices": [[0,1]],
+            "propIndices": [],
             "patternVertices":[
                 [0, 0, 0, 0],
                 [4.5, 0, 0, 1],
@@ -323,7 +323,7 @@
         {
             "tileClass": 1,
             "name": "Herringbone 1:3",
-            "propIndices": [[0,1]],
+            "propIndices": [],
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -366,7 +366,7 @@
         {
             "tileClass": 1,
             "name": "Blunt Herringbone",
-            "propIndices": [[0,1]],
+            "propIndices": [],
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -409,7 +409,7 @@
         {
             "tileClass": 1,
             "name": "Narrow Herringbone",
-            "propIndices": [[0,1]],
+            "propIndices": [],
             "patternVertices":[
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -452,7 +452,7 @@
         {
             "tileClass": 1,
             "name": "Herringbone single 45 degrees",
-            "propIndices": [[0,1]],
+            "propIndices": [],
             "patternVertices": [
                 [4.2426, 0, 0, 0],
                 [9.5459, 5.3033, 0.7071, 0.7071],
@@ -495,7 +495,7 @@
         {
             "tileClass": 1,
             "name": "Diamond Grid Pattern",
-            "propIndices": [[0]],
+            "propIndices": [],
             "patternVertices": [
                 [0.7071, 0, 0, 0],
                 [1.4142, 0.7071, 0, 0],
@@ -537,7 +537,7 @@
         {
             "tileClass": 4,
             "name": "Versailles",
-            "propIndices": [[0,1,2,3,4,5,6,7,8,9,10,11]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [4, 0, 0, 0],
@@ -649,7 +649,7 @@
         {
             "tileClass": 1,
             "name": "Herringbone double horizontal",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -704,7 +704,7 @@
         {
             "tileClass": 1,
             "name": "Herringbone double horizontal flipped",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 0],
@@ -759,7 +759,10 @@
         {
             "tileClass": 1,
             "name": "Herringbone double 45 degrees",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [
+                [19, 19, 19, 19],
+                [21, 21, 21, 21]
+            ],
             "patternVertices": [
                 [4.2426, 0, 0, 0],
                 [10.6066, 6.3640, 1.4142, 1.4142],
@@ -814,7 +817,7 @@
         {
             "tileClass": 1,
             "name": "* Basket weave basic 2x2",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 2],
@@ -871,7 +874,7 @@
         {
             "tileClass": 1,
             "name": "* Basket weave basic 3x3",
-            "propIndices": [[0,1,2,3,4,5]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [12, 0, 0, 3],
@@ -936,7 +939,7 @@
         {
             "tileClass": 1,
             "name": "* Corner dots",
-            "propIndices": [[0,1,2,3,4]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [6, 0, 0, 1.7071],
@@ -1002,7 +1005,7 @@
         {
             "tileClass": 1,
             "name": "* Finger Blocks",
-            "propIndices": [[0,1,2,3,4,5,6,7,8,9,10]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [18, 0, 0, 6],
@@ -1103,7 +1106,7 @@
         {
             "tileClass": 1,
             "name": "* Block Lattice 1",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [8, 0, 0, 1],
@@ -1158,7 +1161,7 @@
         {
             "tileClass": 1,
             "name": "* Block Lattice 2",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [4.5, 0, 0, 1],
@@ -1211,7 +1214,7 @@
         {
             "tileClass": 1,
             "name": "* Block Trellis",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [10, 0, 0, 1],
@@ -1263,7 +1266,7 @@
         {
             "tileClass": 1,
             "name": "* Picture frame",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [7.5, 0, 0, 1],
@@ -1315,7 +1318,7 @@
         {
             "tileClass": 1,
             "name": "* Narrow frame",
-            "propIndices": [[0,1,2,3]],
+            "propIndices": [],
             "patternVertices": [
                 [0, 0, 0, 0],
                 [7.125, 0, 0, 1],

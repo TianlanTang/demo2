@@ -111,7 +111,7 @@ const CostInfo = () => {
 										{costInfos.tileSummary.map((tile, index) => (
 											<tr key={index}>
 												<td>{tile.tileName}</td>
-												<td>{tile.count.toFixed(4)}</td>
+												<td>{tile.count}</td>
 												<td>{tile.cost.toFixed(4)}</td>
 											</tr>
 										))}
@@ -127,11 +127,15 @@ const CostInfo = () => {
 								<p>Grout Thickness (mm): {costInfos.groutThickness.toFixed(4)}</p>
 								<p>Net Grout Required (kg): {costInfos.netGroutRequiredKg.toFixed(4)}</p>
 								<p>Grout Cost on Weight ($): {costInfos.groutCostOnWieght.toFixed(4)}</p>
+                                <p>Grout Bag Size ($): {costInfos.groutBagSize.toFixed(4)}</p>
+                                <p>Grout Cost Per Bag ($): {costInfos.groutCostPerBag.toFixed(4)}</p>
 								<p>Grout Cost on Bag ($): {costInfos.groutCostOnBag.toFixed(4)}</p>
 
 								<h4>Adhensive Costs</h4>
 								<p>Adhensive Required (kg): {costInfos.adhensiveRequiredKg.toFixed(4)}</p>
 								<p>Adhensive Cost on Weight ($): {costInfos.adhensiveCostOnWeight.toFixed(4)}</p>
+                                <p>Adhensive Bag Size ($): {costInfos.adhensiveBagSize.toFixed(4)}</p>
+                                <p>Adhensive Cost Per Bag ($): {costInfos.adhensiveCostPerBag.toFixed(4)}</p>
 								<p>Adhensive Cost on Bag ($): {costInfos.adhensiveCostOnBag.toFixed(4)}</p>
 							</div>
 						)}
