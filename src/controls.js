@@ -108,10 +108,8 @@ const Controls = () => {
     };
 
     return (
-        <div style = {{ display: 'flex', flexDirection: 'row'}}>
-            <Box padding={2} width={600}>
-        
-
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+            <Box padding={2} sx={{ width: '100%', maxWidth: 600 }}>
                 {/* Slider to control Grout Width */}
                 <Typography id="grout-width-slider" gutterBottom> Grout Width {OGroutWidth} mm</Typography>
                 <Slider
@@ -142,7 +140,7 @@ const Controls = () => {
                 />
             </Box>       
 
-            <Box padding= {2} sx={{display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box padding={2} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 600 }}>
                 <div style = {{ display: 'flex', flexDirection: 'row', gap: 10}}>
                     {/* Form to select tile patterns */}
                     <FormControl fullWidth sx={{ width: '300px' }}>
@@ -181,7 +179,7 @@ const Controls = () => {
                             >
                                 {tileProportions.map((proportion, index) => (
                                     <MenuItem key={index} value={index}>
-                                        {`${selectedBaseSize[0] * proportion[0] / proportion[1]} mm x ${selectedBaseSize[1] * proportion[0] / proportion[1]} mm `}
+                                        {`${(selectedBaseSize[0] * proportion[0] / proportion[1]).toFixed(0)} mm x ${(selectedBaseSize[1] * proportion[0] / proportion[1]).toFixed(0)} mm `}
                                     </MenuItem>
                                 ))}
                             </Select>

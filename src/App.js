@@ -2,34 +2,48 @@ import TileMap from './tileMap';
 import Controls from './controls';
 import { pattern } from './pattern';
 import { useEffect } from 'react';
+import CostInfo from './costInfo';
 
 function App() {
     useEffect(() => {
-    pattern.getState().init();
-}, []);
+        pattern.getState().init();
+    }, []);
     
     return (
         <div style={{
             display: 'flex',
-            flexDirection: 'column',  // Change direction to column
+            flexDirection: 'column',
             height: '100vh',
-            overflow: 'hidden'
+            overflow: 'auto'
         }}>
-
-            {/* Area for canvas */}
+            {/* Row container for CostInfo and Canvas */}
             <div style={{
-                flex: 1,
                 display: 'flex',
-                justifyContent: 'center',  // Center the TileMap view
+                flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: '#fff'
+                justifyContent: 'center',
+                flex: '0 0 60vh' // canvas area height remains unchanged
             }}>
-                <TileMap />
+                {/* Place CostInfo to the left */}
+                <div style={{ marginRight: '20px' }}>
+                    <CostInfo />
+                </div>
+                {/* Canvas area */}
+                <div style={{
+                    flex: '0 0 auto',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#fff'
+                }}>
+                    <TileMap />
+                </div>
             </div>
-
+            
             {/* Area for controls */}
             <div style={{
-                width: '100%',  // Ensure it takes full width
+                flex: '0 0 40vh',
+                width: '100%',
                 padding: '10px',
                 boxSizing: 'border-box',
                 backgroundColor: '#f9f9f9',
@@ -37,9 +51,8 @@ function App() {
             }}>
                 <Controls />
             </div>
-
         </div>
-    );
+    );  
 }
 
 export default App;

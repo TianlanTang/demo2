@@ -1,28 +1,204 @@
 {
+    "CommonProps": {
+        "AdhensiveWallCover": 2.0,
+        "AdhensiveFloorCover": 5.0,
+        "AdhensiveCost": 3,
+        "GroutThickness": 10,
+        "GroutMixtureWaterContent": 0.5,
+        "GroutDensity": 1600,
+        "GroutCost": 5,
+        "GroutContingencyFactor": 1.10,
+        "GroutBagSize": 5,
+        "GroutCostPerBag": 25,
+        "LayAndGroutCost": 65,
+        "AdhensiveBagSize": 15,
+        "AdhensiveCostPerBag": 60
+    },
     "TileProps": [
-        { "Idx": 0, "Name": "50 x 50", "Width": 50, "Length": 50, "TileCost": 51, "ContingencyFactor": 1.11, "GroutThickness": 10, "GroutCost": 5, "AdhensiveWallCover": 2.0, "AdhensiveFloorCover": 5.0, "AdhensiveCost": 3 },
-        { "Idx": 1, "Name": "75 x 75", "Width": 75, "Length": 75, "TileCost": 52, "ContingencyFactor": 1.12, "GroutThickness": 11, "GroutCost": 6, "AdhensiveWallCover": 2.1, "AdhensiveFloorCover": 5.1, "AdhensiveCost": 4 },
-        { "Idx": 2, "Name": "100 x 100", "Width": 100, "Length": 100, "TileCost": 53, "ContingencyFactor": 1.13, "GroutThickness": 12, "GroutCost": 7, "AdhensiveWallCover": 2.2, "AdhensiveFloorCover": 5.2, "AdhensiveCost": 5 },
-        { "Idx": 3, "Name": "150 x 150", "Width": 150, "Length": 150, "TileCost": 54, "ContingencyFactor": 1.14, "GroutThickness": 13, "GroutCost": 8, "AdhensiveWallCover": 2.3, "AdhensiveFloorCover": 5.3, "AdhensiveCost": 6 },
-        { "Idx": 4, "Name": "200 x 200", "Width": 200, "Length": 200, "TileCost": 55, "ContingencyFactor": 1.15, "GroutThickness": 14, "GroutCost": 9, "AdhensiveWallCover": 2.4, "AdhensiveFloorCover": 5.4, "AdhensiveCost": 7 },
-        { "Idx": 5, "Name": "300 x 300", "Width": 300, "Length": 300, "TileCost": 56, "ContingencyFactor": 1.16, "GroutThickness": 15, "GroutCost": 10, "AdhensiveWallCover": 2.5, "AdhensiveFloorCover": 5.5, "AdhensiveCost": 8 },
-        { "Idx": 6, "Name": "400 x 400", "Width": 400, "Length": 400, "TileCost": 57, "ContingencyFactor": 1.17, "GroutThickness": 16, "GroutCost": 11, "AdhensiveWallCover": 2.6, "AdhensiveFloorCover": 5.6, "AdhensiveCost": 9 },
-        { "Idx": 7, "Name": "450 x 450", "Width": 450, "Length": 450, "TileCost": 58, "ContingencyFactor": 1.18, "GroutThickness": 17, "GroutCost": 12, "AdhensiveWallCover": 2.7, "AdhensiveFloorCover": 5.7, "AdhensiveCost": 10 },
-        { "Idx": 8, "Name": "600 x 600", "Width": 600, "Length": 600, "TileCost": 59, "ContingencyFactor": 1.19, "GroutThickness": 18, "GroutCost": 13, "AdhensiveWallCover": 2.8, "AdhensiveFloorCover": 5.8, "AdhensiveCost": 11 },
-        { "Idx": 9, "Name": "900 x 900", "Width": 900, "Length": 900, "TileCost": 60, "ContingencyFactor": 1.20, "GroutThickness": 19, "GroutCost": 14, "AdhensiveWallCover": 2.9, "AdhensiveFloorCover": 5.9, "AdhensiveCost": 12 },
-        { "Idx": 10, "Name": "75 x 150", "Width": 75, "Length": 150, "TileCost": 61, "ContingencyFactor": 1.21, "GroutThickness": 20, "GroutCost": 15, "AdhensiveWallCover": 3.0, "AdhensiveFloorCover": 6.0, "AdhensiveCost": 13 },
-        { "Idx": 11, "Name": "100 x 200", "Width": 100, "Length": 200, "TileCost": 62, "ContingencyFactor": 1.22, "GroutThickness": 21, "GroutCost": 16, "AdhensiveWallCover": 3.1, "AdhensiveFloorCover": 6.1, "AdhensiveCost": 14 },
-        { "Idx": 12, "Name": "150 x 300", "Width": 150, "Length": 300, "TileCost": 63, "ContingencyFactor": 1.23, "GroutThickness": 22, "GroutCost": 17, "AdhensiveWallCover": 3.2, "AdhensiveFloorCover": 6.2, "AdhensiveCost": 15 },
-        { "Idx": 13, "Name": "200 x 400", "Width": 200, "Length": 400, "TileCost": 64, "ContingencyFactor": 1.24, "GroutThickness": 23, "GroutCost": 18, "AdhensiveWallCover": 3.3, "AdhensiveFloorCover": 6.3, "AdhensiveCost": 16 },
-        { "Idx": 14, "Name": "300 x 600", "Width": 300, "Length": 600, "TileCost": 65, "ContingencyFactor": 1.25, "GroutThickness": 24, "GroutCost": 19, "AdhensiveWallCover": 3.4, "AdhensiveFloorCover": 6.4, "AdhensiveCost": 17 },
-        { "Idx": 15, "Name": "200 x 300", "Width": 200, "Length": 300, "TileCost": 66, "ContingencyFactor": 1.26, "GroutThickness": 25, "GroutCost": 20, "AdhensiveWallCover": 3.5, "AdhensiveFloorCover": 6.5, "AdhensiveCost": 18 },
-        { "Idx": 16, "Name": "300 x 450", "Width": 300, "Length": 450, "TileCost": 67, "ContingencyFactor": 1.27, "GroutThickness": 26, "GroutCost": 21, "AdhensiveWallCover": 3.6, "AdhensiveFloorCover": 6.6, "AdhensiveCost": 19 },
-        { "Idx": 17, "Name": "100 x 300", "Width": 100, "Length": 300, "TileCost": 68, "ContingencyFactor": 1.28, "GroutThickness": 27, "GroutCost": 22, "AdhensiveWallCover": 3.7, "AdhensiveFloorCover": 6.7, "AdhensiveCost": 20 },
-        { "Idx": 18, "Name": "150 x 450", "Width": 150, "Length": 450, "TileCost": 69, "ContingencyFactor": 1.29, "GroutThickness": 28, "GroutCost": 23, "AdhensiveWallCover": 3.8, "AdhensiveFloorCover": 6.8, "AdhensiveCost": 21 },
-        { "Idx": 19, "Name": "75 x 300", "Width": 75, "Length": 300, "TileCost": 70, "ContingencyFactor": 1.30, "GroutThickness": 29, "GroutCost": 24, "AdhensiveWallCover": 3.9, "AdhensiveFloorCover": 6.9, "AdhensiveCost": 22 },
-        { "Idx": 20, "Name": "75 x 450", "Width": 75, "Length": 450, "TileCost": 71, "ContingencyFactor": 1.31, "GroutThickness": 30, "GroutCost": 25, "AdhensiveWallCover": 4.0, "AdhensiveFloorCover": 7.0, "AdhensiveCost": 23 },
-        { "Idx": 21, "Name": "150 x 600", "Width": 150, "Length": 600, "TileCost": 72, "ContingencyFactor": 1.32, "GroutThickness": 31, "GroutCost": 26, "AdhensiveWallCover": 4.1, "AdhensiveFloorCover": 7.1, "AdhensiveCost": 24 },
-        { "Idx": 22, "Name": "150 x 900", "Width": 150, "Length": 900, "TileCost": 73, "ContingencyFactor": 1.33, "GroutThickness": 32, "GroutCost": 27, "AdhensiveWallCover": 4.2, "AdhensiveFloorCover": 7.2, "AdhensiveCost": 25 }
+        {
+            "Idx": 0,
+            "Name": "50 x 50",
+            "Width": 50,
+            "Length": 50,
+            "TileCost": 51,
+            "ContingencyFactor": 1.11
+        },
+        {
+            "Idx": 1,
+            "Name": "75 x 75",
+            "Width": 75,
+            "Length": 75,
+            "TileCost": 52,
+            "ContingencyFactor": 1.12
+        },
+        {
+            "Idx": 2,
+            "Name": "100 x 100",
+            "Width": 100,
+            "Length": 100,
+            "TileCost": 53,
+            "ContingencyFactor": 1.13
+        },
+        {
+            "Idx": 3,
+            "Name": "150 x 150",
+            "Width": 150,
+            "Length": 150,
+            "TileCost": 54,
+            "ContingencyFactor": 1.14
+        },
+        {
+            "Idx": 4,
+            "Name": "200 x 200",
+            "Width": 200,
+            "Length": 200,
+            "TileCost": 55,
+            "ContingencyFactor": 1.15
+        },
+        {
+            "Idx": 5,
+            "Name": "300 x 300",
+            "Width": 300,
+            "Length": 300,
+            "TileCost": 56,
+            "ContingencyFactor": 1.16
+        },
+        {
+            "Idx": 6,
+            "Name": "400 x 400",
+            "Width": 400,
+            "Length": 400,
+            "TileCost": 57,
+            "ContingencyFactor": 1.17
+        },
+        {
+            "Idx": 7,
+            "Name": "450 x 450",
+            "Width": 450,
+            "Length": 450,
+            "TileCost": 58,
+            "ContingencyFactor": 1.18
+        },
+        {
+            "Idx": 8,
+            "Name": "600 x 600",
+            "Width": 600,
+            "Length": 600,
+            "TileCost": 59,
+            "ContingencyFactor": 1.19
+        },
+        {
+            "Idx": 9,
+            "Name": "900 x 900",
+            "Width": 900,
+            "Length": 900,
+            "TileCost": 60,
+            "ContingencyFactor": 1.20
+        },
+        {
+            "Idx": 10,
+            "Name": "75 x 150",
+            "Width": 75,
+            "Length": 150,
+            "TileCost": 61,
+            "ContingencyFactor": 1.21
+        },
+        {
+            "Idx": 11,
+            "Name": "100 x 200",
+            "Width": 100,
+            "Length": 200,
+            "TileCost": 62,
+            "ContingencyFactor": 1.22
+        },
+        {
+            "Idx": 12,
+            "Name": "150 x 300",
+            "Width": 150,
+            "Length": 300,
+            "TileCost": 63,
+            "ContingencyFactor": 1.23
+        },
+        {
+            "Idx": 13,
+            "Name": "200 x 400",
+            "Width": 200,
+            "Length": 400,
+            "TileCost": 64,
+            "ContingencyFactor": 1.24
+        },
+        {
+            "Idx": 14,
+            "Name": "300 x 600",
+            "Width": 300,
+            "Length": 600,
+            "TileCost": 65,
+            "ContingencyFactor": 1.25
+        },
+        {
+            "Idx": 15,
+            "Name": "200 x 300",
+            "Width": 200,
+            "Length": 300,
+            "TileCost": 66,
+            "ContingencyFactor": 1.26
+        },
+        {
+            "Idx": 16,
+            "Name": "300 x 450",
+            "Width": 300,
+            "Length": 450,
+            "TileCost": 67,
+            "ContingencyFactor": 1.27
+        },
+        {
+            "Idx": 17,
+            "Name": "100 x 300",
+            "Width": 100,
+            "Length": 300,
+            "TileCost": 68,
+            "ContingencyFactor": 1.28
+        },
+        {
+            "Idx": 18,
+            "Name": "150 x 450",
+            "Width": 150,
+            "Length": 450,
+            "TileCost": 69,
+            "ContingencyFactor": 1.29
+        },
+        {
+            "Idx": 19,
+            "Name": "75 x 300",
+            "Width": 75,
+            "Length": 300,
+            "TileCost": 70,
+            "ContingencyFactor": 1.30
+        },
+        {
+            "Idx": 20,
+            "Name": "75 x 450",
+            "Width": 75,
+            "Length": 450,
+            "TileCost": 71,
+            "ContingencyFactor": 1.31
+        },
+        {
+            "Idx": 21,
+            "Name": "150 x 600",
+            "Width": 150,
+            "Length": 600,
+            "TileCost": 72,
+            "ContingencyFactor": 1.32
+        },
+        {
+            "Idx": 22,
+            "Name": "150 x 900",
+            "Width": 150,
+            "Length": 900,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
+        }
     ]
 }
 

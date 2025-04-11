@@ -14,6 +14,8 @@ export const pattern = create((set, get) => ({
     propIndices: [], 
     // tile props
     tileProps: [],
+    // common props
+    commonProps: [],
 
     // surface vetices 
     OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
@@ -24,7 +26,7 @@ export const pattern = create((set, get) => ({
     OHoleVertices: [],
     // holes vertices pixel
     holeVertices: [
-
+        [[0, 0], [200, 0], [200, 200], [0, 200]]
     ],
 
     // decide hot to deal with the grout
@@ -70,24 +72,26 @@ export const pattern = create((set, get) => ({
     isDataLoaded: false, 
 
     // total area covered by the tiles
-    totalAreaCovered: 0,
+    tileAreaCovered: 0,
     // total area of the surface minus the holes
     effectiveSurfaceArea: 0,
 
     // is tile on wall 
     isWall: true,
+
+    tileCounts: {}, // Dictionary for count tiles
     
     //preload data
     preloadData: async () => {
         const patterns = await loadPattern();
         const scale = await loadScale();
         const minimumTileLength = await loadMinimumTileLength();
-        const tileProps = await loadProps();
+        const [commonProps, tileProps] = await loadProps();
         if (!patterns || !scale || !minimumTileLength) {
             console.error("load data failed");
             return;
         }
-        set({ patterns, scale, minimumTileLength, tileProps, isDataLoaded: true });
+        set({ patterns, scale, minimumTileLength, commonProps, tileProps, isDataLoaded: true });
         console.log("Data loaded");
     },
 
@@ -118,7 +122,7 @@ export const pattern = create((set, get) => ({
 
         // used to find the standard size of the pattern
         // which is used to calulate the costs
-       // const propIndices = pattern.propIndices[Number(proportionIndex)];
+        const propIndices = pattern.propIndices[Number(proportionIndex)];
 
         const { patternVertices, boundingBox, connection, tileVertices } = pattern;
         const [x, y] = anchor;
@@ -141,7 +145,7 @@ export const pattern = create((set, get) => ({
         
 
         console.time("calAnchors");
-        const {anchors, totalAreaCovered, effectiveSurfaceArea} = calAnchors_clipper(    
+        const {anchors, tileAreaCovered, effectiveSurfaceArea, tileCounts} = calAnchors_clipper(    
             [x + offsetX * scale, y + offsetY * scale], 
             transformedBoundingBox,
             transformedPatternVertices,
@@ -149,12 +153,14 @@ export const pattern = create((set, get) => ({
             surfaceVertices,
             holeVertices,
             transformedTileVertices, 
+            scale,
         );
         set({tiles: anchors, 
-            totalAreaCovered: totalAreaCovered,
+            tileAreaCovered: tileAreaCovered,
             effectiveSurfaceArea: effectiveSurfaceArea,
+            tileCounts: tileCounts,
             boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]],
-           // propIndices: propIndices,
+            propIndices: propIndices,
         });
 
         // Check for duplicate anchors
@@ -164,7 +170,6 @@ export const pattern = create((set, get) => ({
         if (uniqueAnchors.length !== anchors.length) {
             alert("Duplicate anchors found");
         }
-        console.log("Anchors calculated:", anchors);
         console.timeEnd("calAnchors");
         console.log("Pattern initialized");
     },
