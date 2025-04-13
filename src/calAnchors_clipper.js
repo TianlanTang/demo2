@@ -36,9 +36,7 @@ export const calAnchors_clipper = (
     const tileCounts = {}; // Dictionary for count tiles
     let globalTileId = 1; // Added auto-increment tile id starting from 1
 
-    let count = 0;
     while (queue.length > 0) {
-        count++;
         const [ax, ay] = queue.shift();
 
         // Compute the bounding box of the current grouped shape
