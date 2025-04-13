@@ -9,7 +9,6 @@ const TileMap = () => {
         tileColors,
         surfaceVertices,
         holeVertices,
-        tileCounts,
     } = useStore(pattern);
 
     const width = 900;
@@ -25,9 +24,6 @@ const TileMap = () => {
 
     // tile that is currently hovered
     const [hoveredTile, setHoveredTile] = useState({ groupIndex: null, tileIndex: null });
-
-    // Add a new state to track expanded indices per key
-    const [expandedIndices, setExpandedIndices] = useState({});
 
     // calculate distance between two points
     const getDistance = (p1, p2) => {
@@ -229,66 +225,6 @@ const TileMap = () => {
                     {/* texts */}
                     {texts}
                 </svg>
-
-                {/* Dictionary display */}
-                <div
-                    style={{
-                        width: '350px',
-                        maxHeight: '600px',
-                        overflowY: 'auto',
-                        fontSize: '12px'
-                    }}
-                >
-                    <h3>Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)}</h3>
-                    <ul>
-                        {Object.entries(tileCounts).map(([key, value], index) => (
-                            <li key={`complete-${index}`}>
-                                <strong>counts: </strong> {value[0]}
-                                <br />
-                                <strong>edges length: </strong> {value[2]}
-                                <br />
-                                <strong>Indices: </strong> 
-                                <span 
-                                    onClick={() => setExpandedIndices(prev => ({ ...prev, [key]: !prev[key] }))}
-                                    style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
-                                >
-                                    {expandedIndices[key] ? 'Hide Indices' : 'Show Indices'}
-                                </span>
-                                {expandedIndices[key] && (
-                                    <div style={{ marginTop: '5px' }}>
-                                        {
-                                            value[3].reduce((acc, curr, i) => {
-                                                if (i % 5 === 0 && i !== 0) {
-                                                    acc.push(<br key={`br-${i}`} />);
-                                                }
-                                                acc.push(curr);
-                                                if (i !== value[3].length - 1) {
-                                                    acc.push(', ');
-                                                }
-                                                return acc;
-                                            }, [])
-                                        }
-                                    </div>
-                                )}
-                                <svg
-                                    width="280"
-                                    height="280"
-                                    style={{ display: 'block', marginTop: '5px' }}
-                                >
-                                    {value[1].map((tile, tileIdx) => (
-                                        <polygon
-                                            key={`tile-${key}-${tileIdx}`}
-                                            points={tile.map(([x, y]) => `${x},${y}`).join(' ')}
-                                            fill= "#2196F3"
-                                            stroke="black"
-                                            strokeWidth="0.5"
-                                        />
-                                    ))}
-                                </svg>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
             </div>
         </div>
     );

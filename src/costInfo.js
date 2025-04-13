@@ -36,6 +36,22 @@ const CostInfo = () => {
 		}
 	}, [showModal, tiles, propIndices, tileProps, commonProps, tileAreaCovered, effectiveSurfaceArea, isWall]);
 
+	// Consolidate tileSummary: sum count and cost for duplicate tileName
+	const consolidatedTileSummary =
+		costInfos && costInfos.tileSummary
+			? Object.values(
+					costInfos.tileSummary.reduce((acc, tile) => {
+						if (acc[tile.tileName]) {
+							acc[tile.tileName].count += tile.count;
+							acc[tile.tileName].cost += tile.cost;
+						} else {
+							acc[tile.tileName] = { ...tile };
+						}
+						return acc;
+					}, {})
+			  )
+			: [];
+
 	return (
 		<div>
 			{/* Always rendered button */}
@@ -108,7 +124,7 @@ const CostInfo = () => {
 										</tr>
 									</thead>
 									<tbody>
-										{costInfos.tileSummary.map((tile, index) => (
+											{consolidatedTileSummary.map((tile, index) => (
 											<tr key={index}>
 												<td>{tile.tileName}</td>
 												<td>{tile.count}</td>

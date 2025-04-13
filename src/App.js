@@ -3,6 +3,7 @@ import Controls from './controls';
 import { pattern } from './pattern';
 import { useEffect } from 'react';
 import CostInfo from './costInfo';
+import TileHints from './tileHints';
 
 function App() {
     useEffect(() => {
@@ -16,15 +17,15 @@ function App() {
             height: '100vh',
             overflow: 'auto'
         }}>
-            {/* Row container for CostInfo and Canvas */}
+            {/* Row container for CostInfo, Canvas and DictionaryDisplay */}
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: '0 0 60vh' // canvas area height remains unchanged
+                flex: '0 0 60vh'
             }}>
-                {/* Place CostInfo to the left */}
+                {/* CostInfo on the left */}
                 <div style={{ marginRight: '20px' }}>
                     <CostInfo />
                 </div>
@@ -37,6 +38,10 @@ function App() {
                     backgroundColor: '#fff'
                 }}>
                     <TileMap />
+                </div>
+                {/* tileHints on the right */}
+                <div style={{ marginLeft: '20px' }}>
+                    <TileHints />
                 </div>
             </div>
             
