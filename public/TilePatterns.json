@@ -194,7 +194,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Vertical Brickwork Basic",
+            "name": "Vertical Brickwork Basic 1:2",
             "propIndices": [
                 [12],
                 [14]
@@ -232,7 +232,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Vertical Brickwork Medium",
+            "name": "Vertical Brickwork Medium 1:1.5",
             "propIndices": [
                 [15],
                 [16]
@@ -270,7 +270,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Vertical Brickwork Narrow",
+            "name": "Vertical Brickwork Narrow 1:4",
             "propIndices": [
                 [21]
             ],
@@ -400,7 +400,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Blunt Herringbone",
+            "name": "Blunt Herringbone 1:1.5",
             "propIndices": [
                 [15,15],
                 [16,16]
@@ -446,7 +446,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Narrow Herringbone",
+            "name": "Narrow Herringbone 1:4",
             "propIndices": [
                 [19,19],
                 [21,21]
@@ -1078,7 +1078,7 @@
         },
         {
             "tileClass": 1,
-            "name": "Finger Blocks",
+            "name": "Finger Blocks 1:6",
             "propIndices": [
                 [20,20,20,20,20,20,20,20,20,20,20,20],
                 [22,22,22,22,22,22,22,22,22,22,22,22]
