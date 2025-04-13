@@ -1,7 +1,7 @@
 import ClipperLib from "clipper-lib";
 
 // Use an integer scale factor to minimize floating point errors
-const SCALE = 1e8;
+const SCALE = 1e4; // Reduced scale to mitigate floating point precision errors
 
 export const calAnchors_clipper = (
     anchor,
