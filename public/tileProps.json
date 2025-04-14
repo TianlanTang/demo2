@@ -217,7 +217,7 @@
         },
         {
             "Idx": 25,
-            "Name": "125 x 375",
+            "Name": "175 x 525",
             "Width": 125,
             "Length": 375,
             "TileCost": 73,
@@ -225,7 +225,7 @@
         },
         {
             "Idx": 26,
-            "Name": "375 x 375",
+            "Name": "525 x 525",
             "Width": 375,
             "Length": 375,
             "TileCost": 73,
