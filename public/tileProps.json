@@ -246,6 +246,14 @@
             "Length": 200,
             "TileCost": 73,
             "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 29,
+            "Name": "283 x 100 chevron",
+            "Width": 100,
+            "Length": 283,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
         }
     ]
 }
