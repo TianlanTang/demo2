@@ -8,12 +8,10 @@ const defaultWallState = {
     patternName: "Square Grid Pattern",
     proportionIndex: 0,
     propIndices: [],
-    OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
-    surfaceVertices: [[0, 0], [600, 0], [600, 460], [0, 460]],
+    OSurfaceVertices: [],
+    surfaceVertices: [],
     OHoleVertices: [],
-    holeVertices: [
-        [[0, 0], [200, 0], [200, 200], [0, 200]]
-    ],
+    holeVertices: [],
     anchor: [0, 0],
     offsetX: 0,
     offsetY: 0,
@@ -23,12 +21,12 @@ const defaultWallState = {
     tileAreaCovered: 0,
     effectiveSurfaceArea: 0,
     tileCounts: {},
-
+    // scale removed from here
 };
 
 export const pattern = create((set, get) => ({
-    // 全局共享数据
-    scale: 0.2,
+    // Add scale as a global property
+    scale: 0.2, // Default scale value
     groutRange: [],
     OGroutWidth: 0,
     tileColors: [
@@ -68,6 +66,9 @@ export const pattern = create((set, get) => ({
         }
         set({ patterns, scale, minimumTileLength, commonProps, tileProps, isDataLoaded: true });
         console.log("Data loaded");
+
+        // initialize all walls with the loaded data
+        get().initializeWalls();
     },
 
     // 根据指定墙面类型生成布局（仅操作该墙面的独立数据）
@@ -87,7 +88,7 @@ export const pattern = create((set, get) => ({
             surfaceVertices,
             holeVertices,
         } = wall;
-        const { patterns, scale, minimumTileLength, OGroutWidth } = get();
+        const { patterns, minimumTileLength, OGroutWidth, scale } = get(); // Use global scale
         const patternData = patterns.find(p => p.name === patternName);
         if (!patternData) {
             console.error("Pattern not found", patternName);
@@ -158,6 +159,8 @@ export const pattern = create((set, get) => ({
     // 初始化指定墙面（生成布局），参数只有 wallType（默认 "east"）
     init: (wallType = "east") => {
         console.log("Initializing wall:", wallType);
+        // Calculate scale first if not already set or if it needs updating
+        get().calculateScale(wallType);
         get().generateLayout(wallType);
     },
 
@@ -269,17 +272,189 @@ export const pattern = create((set, get) => ({
     // 更新指定墙面的 OSurfaceVertices，同时更新 surfaceVertices
     // 参数顺序调整为: OSurfaceVertices, wallType(默认 "east")
     setOSurfaceVertices: (OSurfaceVertices, wallType = "east") => {
-        const newOSurfaceVertices = [...OSurfaceVertices];
+        console.log(`Updating vertices for ${wallType}`, OSurfaceVertices);
+        
+        // Store new vertices for the target wall
+        const newWalls = {};
+        newWalls[wallType] = {
+            ...get().walls[wallType],
+            OSurfaceVertices: [...OSurfaceVertices]
+        };
+        
+        // Extract dimensions from the new vertices
+        const getWallDimensions = (vertices) => {
+            const minX = Math.min(...vertices.map(v => v[0]));
+            const maxX = Math.max(...vertices.map(v => v[0]));
+            const minY = Math.min(...vertices.map(v => v[1]));
+            const maxY = Math.max(...vertices.map(v => v[1]));
+            
+            return {
+                width: maxX - minX,
+                height: maxY - minY,
+                minX, maxX, minY, maxY
+            };
+        };
+        
+        const dimensions = getWallDimensions(OSurfaceVertices);
+        
+        // Coordinate changes across walls based on the updated wall
+        
+        // Pair opposite walls (east-west, north-south)
+        const oppositeWall = {
+            east: 'west',
+            west: 'east',
+            north: 'south',
+            south: 'north',
+            floor: 'floor' // Floor is its own opposite for simplicity
+        };
+        
+        // Keep track of walls we've already updated
+        const updatedWalls = new Set([wallType]);
+        
+        // 1. Update the opposite wall (east-west or north-south pairing)
+        if (wallType !== 'floor') {
+            const opposite = oppositeWall[wallType];
+            updatedWalls.add(opposite);
+            
+            // Copy dimensions but maintain the opposite wall's orientation
+            const oppositeWallVertices = [...get().walls[opposite].OSurfaceVertices];
+            
+            // For opposite walls, dimensions should match but orientation differs
+            if (wallType === 'east' || wallType === 'west') {
+                // For east-west pair, maintain vertical alignment but match width
+                const oppositeDims = getWallDimensions(oppositeWallVertices);
+                const height = dimensions.height; // Use height from the edited wall
+                
+                // The base coordinates are maintained, just adapt width/height
+                newWalls[opposite] = {
+                    ...get().walls[opposite],
+                    OSurfaceVertices: [
+                        [oppositeDims.minX, oppositeDims.minY], 
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY],
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + height],
+                        [oppositeDims.minX, oppositeDims.minY + height]
+                    ]
+                };
+            } 
+            else if (wallType === 'north' || wallType === 'south') {
+                // For north-south pair, maintain horizontal alignment but match width
+                const oppositeDims = getWallDimensions(oppositeWallVertices);
+                const height = dimensions.height; // Use height from the edited wall
+                
+                newWalls[opposite] = {
+                    ...get().walls[opposite],
+                    OSurfaceVertices: [
+                        [oppositeDims.minX, oppositeDims.minY], 
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY],
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + height],
+                        [oppositeDims.minX, oppositeDims.minY + height]
+                    ]
+                };
+            }
+        }
+        
+        // 2. When any of east, south, north walls' height changes, update all 4 walls' heights
+        if (wallType === 'east' || wallType === 'west' || wallType === 'north' || wallType === 'south') {
+            const wallsToUpdate = ['east', 'west', 'north', 'south'].filter(w => !updatedWalls.has(w));
+            
+            wallsToUpdate.forEach(wall => {
+                updatedWalls.add(wall);
+                const currentVertices = [...get().walls[wall].OSurfaceVertices];
+                const wallDims = getWallDimensions(currentVertices);
+                
+                // Update height while preserving width and position
+                newWalls[wall] = {
+                    ...get().walls[wall],
+                    OSurfaceVertices: [
+                        [wallDims.minX, wallDims.minY], 
+                        [wallDims.maxX, wallDims.minY],
+                        [wallDims.maxX, wallDims.minY + dimensions.height],
+                        [wallDims.minX, wallDims.minY + dimensions.height]
+                    ]
+                };
+            });
+        }
+        
+        // 3. Update the floor based on wall dimensions
+        if (!updatedWalls.has('floor')) {
+            // Get the east-west dimension (which should now be consistent)
+            const eastWallVertices = newWalls['east']?.OSurfaceVertices || get().walls['east'].OSurfaceVertices;
+            const eastDims = getWallDimensions(eastWallVertices);
+            
+            // Get the north-south dimension (which should now be consistent)
+            const northWallVertices = newWalls['north']?.OSurfaceVertices || get().walls['north'].OSurfaceVertices;
+            const northDims = getWallDimensions(northWallVertices);
+            
+            // Floor should match east-west width and north-south width
+            newWalls['floor'] = {
+                ...get().walls['floor'],
+                OSurfaceVertices: [
+                    [0, 0],
+                    [eastDims.width, 0],
+                    [eastDims.width, northDims.width],
+                    [0, northDims.width]
+                ]
+            };
+        }
+        
+        // Special handling if floor was directly changed
+        if (wallType === 'floor') {
+            // Floor dimensions determine the dimensions of all walls
+            const floorWidth = dimensions.width;  // east-west dimension
+            const floorDepth = dimensions.height; // north-south dimension
+            
+            // Update east and west walls (they should have the same width as floor depth)
+            ['east', 'west'].forEach(wall => {
+                updatedWalls.add(wall);
+                const currentVertices = [...get().walls[wall].OSurfaceVertices];
+                const wallDims = getWallDimensions(currentVertices);
+                const wallHeight = wallDims.height; // Preserve existing height
+                
+                newWalls[wall] = {
+                    ...get().walls[wall],
+                    OSurfaceVertices: [
+                        [wallDims.minX, wallDims.minY], 
+                        [wallDims.minX + floorDepth, wallDims.minY],
+                        [wallDims.minX + floorDepth, wallDims.minY + wallHeight],
+                        [wallDims.minX, wallDims.minY + wallHeight]
+                    ]
+                };
+            });
+            
+            // Update north and south walls (they should have the same width as floor width)
+            ['north', 'south'].forEach(wall => {
+                updatedWalls.add(wall);
+                const currentVertices = [...get().walls[wall].OSurfaceVertices];
+                const wallDims = getWallDimensions(currentVertices);
+                const wallHeight = wallDims.height; // Preserve existing height
+                
+                newWalls[wall] = {
+                    ...get().walls[wall],
+                    OSurfaceVertices: [
+                        [wallDims.minX, wallDims.minY], 
+                        [wallDims.minX + floorWidth, wallDims.minY],
+                        [wallDims.minX + floorWidth, wallDims.minY + wallHeight],
+                        [wallDims.minX, wallDims.minY + wallHeight]
+                    ]
+                };
+            });
+        }
+        
+        // Apply all the coordinated changes at once
         set(state => ({
             walls: {
                 ...state.walls,
-                [wallType]: {
-                    ...state.walls[wallType],
-                    OSurfaceVertices: newOSurfaceVertices,
-                    surfaceVertices: newOSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
-                }
+                ...newWalls
             }
         }));
+        
+        // Recalculate scale for all affected walls
+        Object.keys(newWalls).forEach(wall => {
+            get().calculateScale(wall);
+        });
+        
+        get().init(wallType); // Reinitialize the wall
+        console.log("Coordinated wall updates completed");
     },
 
     // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
@@ -291,16 +466,18 @@ export const pattern = create((set, get) => ({
             return;
         }
         const newOSurfaceVertices = [...wall.OSurfaceVertices, ...OSurfaceVerTex];
+        
+        // First update the OSurfaceVertices
         set(state => ({
             walls: {
                 ...state.walls,
                 [wallType]: {
                     ...state.walls[wallType],
-                    OSurfaceVertices: newOSurfaceVertices,
-                    surfaceVertices: newOSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+                    OSurfaceVertices: newOSurfaceVertices
                 }
             }
         }));
+        
     },
 
     // 移除指定墙面的所有孔洞数据
@@ -333,7 +510,7 @@ export const pattern = create((set, get) => ({
                 [wallType]: {
                     ...state.walls[wallType],
                     OHoleVertices: newOHoleVertices,
-                    holeVertices: newOHoleVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+                    holeVertices: newOHoleVertices.map(([x, y]) => [x * state.scale, y * state.scale])
                 }
             }
         }));
@@ -391,6 +568,137 @@ export const pattern = create((set, get) => ({
             get().init(wallType);
         });
         set({ walls: updatedWalls });
+    },
+
+    // Add a new method to calculate and set scale based on OSurfaceVertices
+    calculateScale: (wallType = "east") => {
+        const wall = get().walls[wallType];
+        if (!wall || !wall.OSurfaceVertices || wall.OSurfaceVertices.length === 0) {
+            console.error("Cannot calculate scale: Invalid wall or vertices");
+            return;
+        }
+        
+        const maxY = Math.max(...wall.OSurfaceVertices.map(v => v[1]));
+        
+        // Calculate new scale based on maxY only
+        const newScale = 600 / maxY;
+        
+        // Only update if new scale is smaller than current scale
+        const currentScale = get().scale;
+        
+        if (newScale < currentScale) {
+            console.log(`Updating scale: ${currentScale} -> ${newScale} (from maxY=${maxY})`);
+            
+            // Update the global scale
+            set({ scale: newScale });
+            
+            // Update all walls' surfaceVertices with the new scale
+            const updatedWalls = {};
+            Object.keys(get().walls).forEach(type => {
+                updatedWalls[type] = {
+                    ...get().walls[type],
+                    surfaceVertices: get().walls[type].OSurfaceVertices.map(
+                        ([x, y]) => [x * newScale, y * newScale]
+                    )
+                };
+            });
+            
+            set(state => ({
+                walls: {
+                    ...state.walls,
+                    ...updatedWalls
+                }
+            }));
+        } else {
+            console.log(`Keeping current scale: ${currentScale} (new scale ${newScale} not smaller)`);
+            
+            // Just update this wall's surfaceVertices with the current scale
+            set(state => ({
+                walls: {
+                    ...state.walls,
+                    [wallType]: {
+                        ...state.walls[wallType],
+                        surfaceVertices: state.walls[wallType].OSurfaceVertices.map(
+                            ([x, y]) => [x * currentScale, y * currentScale]
+                        )
+                    }
+                }
+            }));
+        }
+        
+        return get().scale; // Return the current scale (whether updated or not)
+    },
+
+    // Initialize all walls with coordinated OSurfaceVertices
+    initializeWalls: () => {
+        // Start with default dimensions
+        const wallHeight = 3000;
+        const roomWidth = 3000;  // east-west dimension
+        const roomDepth = 3000;  // north-south dimension
+        
+        // Set OSurfaceVertices for all walls in a coordinated way
+        set(state => ({
+            walls: {
+            ...state.walls,
+            east: {
+                ...state.walls.east,
+                OSurfaceVertices: [
+                [0, 0],
+                [roomDepth, 0],
+                [roomDepth, wallHeight],
+                [0, wallHeight]
+                ]
+            },
+            west: {
+                ...state.walls.west,
+                OSurfaceVertices: [
+                [0, 0],
+                [roomDepth, 0],
+                [roomDepth, wallHeight],
+                [0, wallHeight]
+                ]
+            },
+            north: {
+                ...state.walls.north,
+                OSurfaceVertices: [
+                [0, 0],
+                [roomWidth, 0],
+                [roomWidth, wallHeight],
+                [0, wallHeight]
+                ]
+            },
+            south: {
+                ...state.walls.south,
+                OSurfaceVertices: [
+                [0, 0],
+                [roomWidth, 0],
+                [roomWidth, wallHeight],
+                [0, wallHeight]
+                ]
+            },
+            floor: {
+                ...state.walls.floor,
+                OSurfaceVertices: [
+                [0, 0],
+                [roomWidth, 0],
+                [roomWidth, roomDepth],
+                [0, roomDepth]
+                ]
+            }
+            }
+        }));
+        
+        // Calculate scale for each wall
+        Object.keys(get().walls).forEach(wallType => {
+            get().calculateScale(wallType);
+        });
+        
+        // Initialize each wall
+        Object.keys(get().walls).forEach(wallType => {
+            get().init(wallType);
+        });
+        
+        console.log("All walls initialized with coordinated dimensions");
     },
 }));
 

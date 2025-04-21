@@ -83,7 +83,7 @@ const TileExample = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <svg ref={svgRef} width={canvasWidth} height={canvasHeight} style={{ border: '0px' }}>
         {tileGroup.map(({ tile }, index) => (
           <polygon

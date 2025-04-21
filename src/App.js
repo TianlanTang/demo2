@@ -1,14 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import TileExamplePage from './tileExamplePage';
+import TileExample from './tileExample';
 import TileMap from './tileMap';
 import Controls from './controls';
 import { pattern } from './pattern';
 import { useEffect } from 'react';
 import CostInfo from './costInfo';
 import TileHints from './tileHints';
+import MultipleSurface from './multipleSurface';
 
 function App() {
     useEffect(() => {
+        // initialize the surface size based on the east wall
         pattern.getState().init("east");
     }, []);
 
@@ -66,10 +68,12 @@ function App() {
             <nav style={{ padding: '10px'}}>
                 <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
                 <Link to="/tile-example">Tile Example</Link>
+                <Link to="/multiple-surface" style={{ marginLeft: '10px' }}>Multiple Surface</Link>
             </nav>
             <Routes>
                 <Route path="/" element={homeContent} />
-                <Route path="/tile-example" element={<TileExamplePage />} />
+                <Route path="/tile-example" element={<TileExample />} />
+                <Route path="/multiple-surface" element={<MultipleSurface />} />
             </Routes>
         </Router>
     );

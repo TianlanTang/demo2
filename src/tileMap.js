@@ -8,14 +8,16 @@ const TileMap = () => {
         tileColors,
         selectedWall,
         walls,
+        scale,
     } = useStore(pattern);
 
     const tiles = walls[selectedWall]['tiles'];
     const surfaceVertices = walls[selectedWall]['surfaceVertices'];
     const holeVertices = walls[selectedWall]['holeVertices'];
 
-    const width = 900;
-    const height = 600;
+    const width = Math.max(...surfaceVertices.map(v => v[0]));
+    const height = Math.max(...surfaceVertices.map(v => v[1]));
+
     const shiftX = (width + (surfaceVertices[0][0] - surfaceVertices[1][0])) / 2;
     const shiftY = (height + (surfaceVertices[1][1] - surfaceVertices[2][1])) / 2;
 
@@ -32,7 +34,7 @@ const TileMap = () => {
     const getDistance = (p1, p2) => {
         const [x1, y1] = p1;
         const [x2, y2] = p2;
-        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / 0.2).toFixed(0);
+        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / scale).toFixed(0);
     };
 
     useEffect(() => {
