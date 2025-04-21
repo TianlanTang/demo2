@@ -3,8 +3,11 @@ import { useStore } from 'zustand';
 import { pattern } from './pattern';
 
 const TileExample = () => {
-  const { tiles, tileColors, patternName } = useStore(pattern);
+  const { walls, selectedWall, tileColors} = useStore(pattern);
   const canvasHeight = 600;
+
+  const patternName = walls[selectedWall]['patternName']
+  const tiles = walls[selectedWall]['tiles'];
 
   // Get the first group of tiles
   const tileGroup = tiles[0] || [];
