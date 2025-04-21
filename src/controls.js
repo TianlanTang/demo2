@@ -123,16 +123,17 @@ const Controls = () => {
             <Box padding={2} sx={{ width: '100%', maxWidth: 600 }}>
                 {/* 墙面选择菜单 */}
                 <FormControl fullWidth sx={{ mb: 2, width: '300px' }}>
-                    <InputLabel>墙面选择</InputLabel>
+                    <InputLabel>Selected Surface</InputLabel>
                     <Select
                         value={selectedWall}
-                        label="墙面选择"
+                        label="selected surface"
                         onChange={handleWallChange}
                     >
                         <MenuItem value="east">East</MenuItem>
                         <MenuItem value="west">West</MenuItem>
                         <MenuItem value="north">North</MenuItem>
                         <MenuItem value="south">South</MenuItem>
+                        <MenuItem value="floor">Floor</MenuItem>
                     </Select>
                 </FormControl>
 
