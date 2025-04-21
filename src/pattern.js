@@ -1,87 +1,62 @@
-import {create} from 'zustand';
-import { loadPattern, loadScale, loadMinimumTileLength, loadProps} from './tools';
+import { create } from 'zustand';
+import { loadPattern, loadScale, loadMinimumTileLength, loadProps } from './tools';
 import { calAnchors_clipper } from './calAnchors_clipper';
 
-export const pattern = create((set, get) => ({
-
-    // pattern name
+// 全局共享的属性 tileProps、commonProps 放到 state 内
+// 默认墙面状态，注意这里不包含全局共享属性，也删除了 isShrinking
+const defaultWallState = {
     patternName: "Square Grid Pattern",
-    // pattern proportion
-    proportionIndex: 4,
-
-    // size indices
-    // m * n m is the number of different sizes, n is the number of tiles in the pattern
-    propIndices: [], 
-    // tile props
-    tileProps: [],
-    // common props
-    commonProps: [],
-
-    // surface vetices 
+    proportionIndex: 0,
+    propIndices: [],
     OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
-    // surface vertices pixel
-    surfaceVertices: [[0, 0], [600, 0], [600, 460], [0, 460]], 
-
-    // holes vertices
+    surfaceVertices: [[0, 0], [600, 0], [600, 460], [0, 460]],
     OHoleVertices: [],
-    // holes vertices pixel
     holeVertices: [
         [[0, 0], [200, 0], [200, 200], [0, 200]]
     ],
-
-    // decide hot to deal with the grout
-    isShrinking: false,
-
-    // sacle the original size to pixel size
-    scale: 0.2,
-
-    // anchor point of the pattern, 1x2, depends on the layout
-    // anchor is the top left corner of the bounding box
     anchor: [0, 0],
-
-    // grout widtn range
-    groutRange: [],
-
-    // base size of the pattern
-    minimumTileLength: 50,
-
-    // grout width
-    OGroutWidth: 0,
-
-    //Tile color 
-    tileColors: [
-        "#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722", 
-        "#E91E63", "#795548", "#607D8B", "#00BCD4", "#8BC34A", 
-        "#FF9800", "#673AB7"
-    ],
-      
-    // offset of the whole layout
     offsetX: 0,
     offsetY: 0,
-
-    // tiles
-    tiles: [],
-
-    // bounding box size, used to calculate the laytou
-    boundingBoxSize: [],
-    
-    // layout of the pattern, used to calculate the anchor point
     layout: "TopLeft",
-
-    patterns: [],  // save all patterns
-    isDataLoaded: false, 
-
-    // total area covered by the tiles
+    tiles: [],
+    boundingBoxSize: [],
     tileAreaCovered: 0,
-    // total area of the surface minus the holes
     effectiveSurfaceArea: 0,
+    tileCounts: {},
 
-    // is tile on wall 
-    isWall: true,
+};
 
-    tileCounts: {}, // Dictionary for count tiles
+export const pattern = create((set, get) => ({
+    // 全局共享数据
+    scale: 0.2,
+    groutRange: [],
+    OGroutWidth: 0,
+    tileColors: [
+        "#2196F3", "#FFC107", "#4CAF50", "#9C27B0", "#FF5722",
+        "#E91E63", "#795548", "#607D8B", "#00BCD4", "#8BC34A",
+        "#FF9800", "#673AB7"
+    ],
+    isDataLoaded: false,
+    minimumTileLength: 50,
+    patterns: [],
+    // 全局共享的 tileProps 与 commonProps
+    tileProps: [],
+    commonProps: [],
     
-    //preload data
+    // 固定 5 个墙面，根据墙面类型设置 isWall：
+    // east、south、west、north 为正面（isWall: true），floor 为反面（isWall: false）
+    walls: {
+        east: { ...defaultWallState, isWall: true },
+        south: { ...defaultWallState, isWall: true },
+        west: { ...defaultWallState, isWall: true },
+        north: { ...defaultWallState, isWall: true },
+        floor: { ...defaultWallState, isWall: false },
+    },
+
+    // 当前选中的墙面
+    selectedWall: "east",
+
+    // 预加载数据
     preloadData: async () => {
         const patterns = await loadPattern();
         const scale = await loadScale();
@@ -95,38 +70,34 @@ export const pattern = create((set, get) => ({
         console.log("Data loaded");
     },
 
-    // generate layout
-    generateLayout: () => {
-        const { 
-            patternName, 
-            proportionIndex,
-            anchor, 
-            patterns, 
-            scale, 
-            minimumTileLength, 
-            OGroutWidth,
-            surfaceVertices,
-            holeVertices,
-            offsetX,
-            offsetY,
-        } = get();
-    
-        const pattern = patterns.find(p => p.name === patternName);
-        if (!pattern) {
-            console.error("Pattern not found");
+    // 根据指定墙面类型生成布局（仅操作该墙面的独立数据）
+    // 参数仅包含 wallType（只有一个参数，保持不变）
+    generateLayout: (wallType = "east") => {
+        const wall = get().walls[wallType];
+        if (!wall) {
+            console.error("Invalid wall type:", wallType);
             return;
         }
-        
-        // used to calculate the size of the pattern
-        const tileProportion = pattern.tileProportion[Number(proportionIndex)];
-
-        // used to find the standard size of the pattern
-        // which is used to calulate the costs
-        const propIndices = pattern.propIndices[Number(proportionIndex)];
-
-        const { patternVertices, boundingBox, connection, tileVertices } = pattern;
+        const {
+            patternName,
+            proportionIndex,
+            anchor,
+            offsetX,
+            offsetY,
+            surfaceVertices,
+            holeVertices,
+        } = wall;
+        const { patterns, scale, minimumTileLength, OGroutWidth } = get();
+        const patternData = patterns.find(p => p.name === patternName);
+        if (!patternData) {
+            console.error("Pattern not found", patternName);
+            return;
+        }
+        const tileProportion = patternData.tileProportion[Number(proportionIndex)];
+        const propIndices = patternData.propIndices[Number(proportionIndex)];
+        const { patternVertices, boundingBox, connection, tileVertices } = patternData;
         const [x, y] = anchor;
-        
+
         const Transform = (vertices) => {
             return vertices.map(vertex => {
                 const extraX = vertex[3] || 0;
@@ -137,118 +108,102 @@ export const pattern = create((set, get) => ({
             });
         };
 
-
         const transformedPatternVertices = Transform(patternVertices);
         const transformedBoundingBox = Transform(boundingBox);
         const transformedConnection = Transform(connection);
         const transformedTileVertices = tileVertices.map(tileVertex => Transform(tileVertex));
-        
 
         console.time("calAnchors");
-        const {anchors, tileAreaCovered, effectiveSurfaceArea, tileCounts} = calAnchors_clipper(    
-            [x + offsetX * scale, y + offsetY * scale], 
+        const { anchors, tileAreaCovered, effectiveSurfaceArea, tileCounts } = calAnchors_clipper(
+            [x + offsetX * scale, y + offsetY * scale],
             transformedBoundingBox,
             transformedPatternVertices,
             transformedConnection,
             surfaceVertices,
             holeVertices,
-            transformedTileVertices, 
+            transformedTileVertices,
             scale,
         );
-        set({tiles: anchors, 
-            tileAreaCovered: tileAreaCovered,
-            effectiveSurfaceArea: effectiveSurfaceArea,
-            tileCounts: tileCounts,
-            boundingBoxSize: [transformedBoundingBox[1][0] - transformedBoundingBox[0][0], transformedBoundingBox[2][1] - transformedBoundingBox[1][1]],
-            propIndices: propIndices,
-        });
+        console.timeEnd("calAnchors");
 
-        // Check for duplicate anchors
-        const uniqueAnchors = anchors.filter((anchor, index, self) =>
-            index === self.findIndex((a) => a[0] === anchor[0] && a[1] === anchor[1])
+        // 更新该墙面的数据
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: {
+                    ...state.walls[wallType],
+                    tiles: anchors,
+                    tileAreaCovered,
+                    effectiveSurfaceArea,
+                    tileCounts,
+                    boundingBoxSize: [
+                        transformedBoundingBox[1][0] - transformedBoundingBox[0][0],
+                        transformedBoundingBox[2][1] - transformedBoundingBox[1][1]
+                    ],
+                    propIndices,
+                }
+            }
+        }));
+
+        // 检查重复的锚点
+        const uniqueAnchors = anchors.filter((a, index, self) =>
+            index === self.findIndex(b => b[0] === a[0] && b[1] === a[1])
         );
         if (uniqueAnchors.length !== anchors.length) {
             alert("Duplicate anchors found");
         }
-        console.timeEnd("calAnchors");
-        console.log("Pattern initialized");
+        console.log("Pattern initialized for wall:", wallType);
     },
 
-    // init
-    init: () => {
-        get().generateLayout()
+    // 初始化指定墙面（生成布局），参数只有 wallType（默认 "east"）
+    init: (wallType = "east") => {
+        console.log("Initializing wall:", wallType);
+        get().generateLayout(wallType);
     },
 
-    // set anchor point
-    setAnchor: (anchor) => {
-        set({ anchor: anchor });
+    // 更新指定墙面的 anchor 点，参数顺序调整为: newAnchor, wallType(默认 "east")
+    setAnchor: (newAnchor, wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...state.walls[wallType], anchor: newAnchor }
+            }
+        }));
     },
 
-    // set grout width
-    setOGroutWidth: (OGroutWidth) => {
-        set({ OGroutWidth: OGroutWidth });
-        get().init();
+    // 更新指定墙面的 offsetX，并重新初始化
+    // 参数顺序调整为: offsetX, wallType(默认 "east")
+    setOffsetX: (offsetX, wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...state.walls[wallType], offsetX }
+            }
+        }));
+        get().init(wallType);
     },
 
-    setSurfaceVertices: (surfaceVertices) => {
-        const newSurfaceVertices = [...surfaceVertices];
-        set({ 
-            OSurfaceVertices: newSurfaceVertices,
-            surfaceVertices: newSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
-        });
+    // 更新指定墙面的 offsetY，并重新初始化
+    // 参数顺序调整为: offsetY, wallType(默认 "east")
+    setOffsetY: (offsetY, wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...state.walls[wallType], offsetY }
+            }
+        }));
+        get().init(wallType);
     },
 
-    // set surface vertices
-    setOSurfaceVertices: (OSurfaceVertices) => {
-        const newOSurfaceVertices = [...OSurfaceVertices];
-        set({ 
-            OSurfaceVertices: newOSurfaceVertices,
-            surfaceVertices: newOSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
-        });
-    },
-
-    // remove all holes
-    removeHoles: () => {
-        set({ 
-            OHoleVertices: [],
-            holeVertices: [] 
-        });
-    },
-
-    // add surface Vertices
-    addOSurfaceVertex: (OSurfaceVerTex) => {
-        const newOsurfaceVertices = [...get().OSurfaceVertices, ...OSurfaceVerTex];
-        // add surface vertex
-        set({ 
-            OSurfaceVertices: newOsurfaceVertices,
-            surfaceVertices: newOsurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
-        });
-    },
-
-    // add hole vertices
-    addOHoleVertices: (OHoleVertex) => {
-        const newOHoleVertices = [...get().OHoleVertices, ...OHoleVertex];
-        // add hole
-        set({ 
-            OHoleVertices: newOHoleVertices,
-            holeVertices: newOHoleVertices.map(([x, y]) => [x * get().scale, y * get().scale])
-         });
-    },
-
-    // update offset
-    setOffsetX: (offsetX) => {
-        set({ offsetX: offsetX });
-        get().init();
-    },
-    setOffsetY: (offsetY) => {
-        set({ offsetY: offsetY });
-        get().init();
-    },
-
-    // set layout 
-    setLayout: (layout) => {
-        set({ layout: layout });
-        const { boundingBoxSize, surfaceVertices, init} = get();
+    // 设置指定墙面的 layout 与 anchor
+    // 参数顺序调整为: layout, wallType(默认 "east")
+    setLayout: (layout, wallType = "east") => {
+        const wall = get().walls[wallType];
+        if (!wall) {
+            console.error("Invalid wall type:", wallType);
+            return;
+        }
+        const { boundingBoxSize, surfaceVertices } = wall;
         let anchor;
         switch (layout) {
             case "TopLeft":
@@ -276,43 +231,166 @@ export const pattern = create((set, get) => ({
                 anchor = [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, surfaceVertices[3][1] - boundingBoxSize[1]];
                 break;
             case "Center":
-                anchor = [(surfaceVertices[1][0] - boundingBoxSize[0]) / 2, (surfaceVertices[3][1] - boundingBoxSize[1]) / 2];
+                anchor = [
+                    (surfaceVertices[1][0] - boundingBoxSize[0]) / 2,
+                    (surfaceVertices[3][1] - boundingBoxSize[1]) / 2
+                ];
                 break;
             default:
                 console.error("Invalid layout type");
                 return;
         }
-        set({ anchor }); // Update the anchor point
-        console.log("Layout updated:", layout);
-        console.log("Anchor point updated:", anchor);
-        init();
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...state.walls[wallType], layout, anchor }
+            }
+        }));
+        console.log("Layout updated for", wallType, ":", layout);
+        console.log("Anchor point updated for", wallType, ":", anchor);
+        get().init(wallType);
     },
 
-    // set pattern 
-    setPattern: (patternName, proportionIndex) => {
-        set({ patternName: patternName, proportionIndex: proportionIndex });
-        const { layout, setLayout } = get();
-        get().init(); // init first to update bounding box size
-        setLayout(layout); // Recalculate the layout and anchor point
+    // 设置指定墙面的图案参数，并重新初始化
+    // 参数顺序调整为: patternName, proportionIndex, wallType(默认 "east")
+    setPattern: (patternName, proportionIndex, wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...state.walls[wallType], patternName, proportionIndex }
+            }
+        }));
+        get().init(wallType);
+        // 按当前墙面的 layout 重新计算 anchor
+        const currentLayout = get().walls[wallType].layout;
+        get().setLayout(currentLayout, wallType);
     },
 
-    // set will or floor
+    // 更新指定墙面的 OSurfaceVertices，同时更新 surfaceVertices
+    // 参数顺序调整为: OSurfaceVertices, wallType(默认 "east")
+    setOSurfaceVertices: (OSurfaceVertices, wallType = "east") => {
+        const newOSurfaceVertices = [...OSurfaceVertices];
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: {
+                    ...state.walls[wallType],
+                    OSurfaceVertices: newOSurfaceVertices,
+                    surfaceVertices: newOSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+                }
+            }
+        }));
+    },
+
+    // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
+    // 参数顺序调整为: OSurfaceVerTex, wallType(默认 "east")
+    addOSurfaceVertex: (OSurfaceVerTex, wallType = "east") => {
+        const wall = get().walls[wallType];
+        if (!wall) {
+            console.error("Invalid wall type:", wallType);
+            return;
+        }
+        const newOSurfaceVertices = [...wall.OSurfaceVertices, ...OSurfaceVerTex];
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: {
+                    ...state.walls[wallType],
+                    OSurfaceVertices: newOSurfaceVertices,
+                    surfaceVertices: newOSurfaceVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+                }
+            }
+        }));
+    },
+
+    // 移除指定墙面的所有孔洞数据
+    // 只有一个参数，保持不变
+    removeHoles: (wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: {
+                    ...state.walls[wallType],
+                    OHoleVertices: [],
+                    holeVertices: []
+                }
+            }
+        }));
+    },
+
+    // 向指定墙面添加孔洞数据，并更新 holeVertices
+    // 参数顺序调整为: OHoleVertex, wallType(默认 "east")
+    addOHoleVertices: (OHoleVertex, wallType = "east") => {
+        const wall = get().walls[wallType];
+        if (!wall) {
+            console.error("Invalid wall type:", wallType);
+            return;
+        }
+        const newOHoleVertices = [...wall.OHoleVertices, ...OHoleVertex];
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: {
+                    ...state.walls[wallType],
+                    OHoleVertices: newOHoleVertices,
+                    holeVertices: newOHoleVertices.map(([x, y]) => [x * get().scale, y * get().scale])
+                }
+            }
+        }));
+    },
+
+    // 重置指定墙面为默认状态，并重新生成布局
+    // 参数保持不变（只有一个参数）
+    reset: (wallType = "east") => {
+        set(state => ({
+            walls: {
+                ...state.walls,
+                [wallType]: { ...defaultWallState, isWall: wallType === "floor" ? false : true }
+            }
+        }));
+        get().init(wallType);
+    },
+
+    // 设置当前选中的墙面
+    setSelectedWall: (selectedWall) => {      
+        set({ selectedWall });
+        get().init(selectedWall);
+    },
+
+    // 切换全局的 isWall（注意全局设置时不会影响各固定墙面的 isWall，
+    // 各墙面 isWall 根据类型自动设置，因此这里仅作为全局标识参考）
     setIsWall: () => {
-        set({ isWall: !get().isWall });
+        set(state => ({ isWall: !state.isWall }));
     },
 
-    // reset
-    reset: () => {
-        set({
-            OSurfaceVertices: [[0, 0], [3000, 0], [3000, 2300], [0, 2300]],
-            surfaceVertices: [[0, 0], [600, 0], [600, 460], [0, 460]],
-            OHoleVertices: [],
-            holeVertices: [],
-            OGroutWidth: 0,
-            offsetX: 0,
-            offsetY: 0,
+    // 设置全局 OGroutWidth，并刷新所有墙面的布局
+    setOGroutWidth: (OGroutWidth) => {
+        set({ OGroutWidth });
+        Object.keys(get().walls).forEach(wallType => {
+            get().init(wallType);
         });
-        get().init();
-    }
+    },
+
+    // 全局设置 offsetX，遍历所有墙面进行更新
+    setOffsetXGlobal: (offsetX) => {
+        const walls = get().walls;
+        const updatedWalls = {};
+        Object.keys(walls).forEach(wallType => {
+            updatedWalls[wallType] = { ...walls[wallType], offsetX };
+            get().init(wallType);
+        });
+        set({ walls: updatedWalls });
+    },
+
+    // 全局设置 offsetY，遍历所有墙面进行更新
+    setOffsetYGlobal: (offsetY) => {
+        const walls = get().walls;
+        const updatedWalls = {};
+        Object.keys(walls).forEach(wallType => {
+            updatedWalls[wallType] = { ...walls[wallType], offsetY };
+            get().init(wallType);
+        });
+        set({ walls: updatedWalls });
+    },
 }));
 

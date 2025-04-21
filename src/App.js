@@ -9,7 +9,7 @@ import TileHints from './tileHints';
 
 function App() {
     useEffect(() => {
-        pattern.getState().init();
+        pattern.getState().init("east");
     }, []);
 
     const homeContent = (

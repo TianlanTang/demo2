@@ -3,7 +3,8 @@ import { useStore } from 'zustand';
 import { pattern } from './pattern';
 
 const TileHints = () => {
-    const { tileCounts } = useStore(pattern);
+    const { walls, selectedWall } = useStore(pattern);
+    const tileCounts = walls[selectedWall]['tileCounts'];
     const [expandedIndices, setExpandedIndices] = useState({});
 
     return (

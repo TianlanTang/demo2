@@ -5,11 +5,14 @@ import { useState, useEffect } from 'react';
 const TileMap = () => {
     console.log("TileMap Ready to Load");
     const {
-        tiles,
         tileColors,
-        surfaceVertices,
-        holeVertices,
+        selectedWall,
+        walls,
     } = useStore(pattern);
+
+    const tiles = walls[selectedWall]['tiles'];
+    const surfaceVertices = walls[selectedWall]['surfaceVertices'];
+    const holeVertices = walls[selectedWall]['holeVertices'];
 
     const width = 900;
     const height = 600;

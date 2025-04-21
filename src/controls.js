@@ -10,13 +10,14 @@ import {
 } from '@mui/material';
 import { pattern } from './pattern';
 import React, { useState } from 'react';
-import {useStore} from 'zustand';
-
+import { useStore } from 'zustand';
+import { useEffect } from 'react';
 
 const Controls = () => {
 
     // load controllers
     const {
+        setSelectedWall,
         setPattern,
         setOffsetX,
         setOffsetY,
@@ -26,52 +27,62 @@ const Controls = () => {
         setLayout,
     } = pattern.getState();
 
-    const{
-        patternName,
-        proportionIndex,
-        OGroutWidth,
-        patterns,   
-        offsetX,
-        offsetY,
-        layout,
+    const {
+        patterns,
+        selectedWall,
+        walls
     } = useStore(pattern);
+
+    // 使用 selectedWall 变量替代固定的 'east'
+    const patternName = walls[selectedWall]['patternName'];
+    const proportionIndex = walls[selectedWall]['proportionIndex'];
+    const OGroutWidth = walls[selectedWall]['OGroutWidth'];
+    const offsetX = walls[selectedWall]['offsetX'];
+    const offsetY = walls[selectedWall]['offsetY'];
+    const layout = walls[selectedWall]['layout'];
 
     // load tile patterns
     const [tileProportions, setTileProportions] = useState([]);
     const [selectedBaseSize, setSelectedBaseSize] = useState([0, 0]);
 
-    if (tileProportions.length === 0) {
-        const pattern = patterns.find((p) => p.name === patternName);
-        setTileProportions(pattern.tileProportion);
-        setSelectedBaseSize([
-            (pattern.tileVertices[0][1][0] - pattern.tileVertices[0][0][0]) * minimumTileLength, 
-            (pattern.tileVertices[0][2][1] - pattern.tileVertices[0][1][1]) * minimumTileLength
-        ]);
-    }
+    useEffect(() => {
+        const patternFound = patterns.find((p) => p.name === patternName);
+        if (patternFound) {
+            setTileProportions(patternFound.tileProportion);
+            setSelectedBaseSize([
+                (patternFound.tileVertices[0][1][0] - patternFound.tileVertices[0][0][0]) * minimumTileLength, 
+                (patternFound.tileVertices[0][2][1] - patternFound.tileVertices[0][1][1]) * minimumTileLength
+            ]);
+        }
+    }, [selectedWall, patternName, patterns, minimumTileLength]);
 
     // update tileScales selection when patterns change
     const handlepatternChange = (e) => {
-        const patternName = e.target.value;
-        const pattern = patterns.find((p) => p.name === patternName);
-        if (pattern) {
-            
+        const newPatternName = e.target.value;
+        const patternFound = patterns.find((p) => p.name === newPatternName);
+        if (patternFound) {
             // switch tile scales
-            setTileProportions(pattern.tileProportion);
-            setPattern(patternName, 0);
+            setTileProportions(patternFound.tileProportion);
+            setPattern(newPatternName, 0, selectedWall);
             setSelectedBaseSize([
-                (pattern.tileVertices[0][1][0] - pattern.tileVertices[0][0][0]) * minimumTileLength, 
-                (pattern.tileVertices[0][2][1] - pattern.tileVertices[0][1][1]) * minimumTileLength
+                (patternFound.tileVertices[0][1][0] - patternFound.tileVertices[0][0][0]) * minimumTileLength, 
+                (patternFound.tileVertices[0][2][1] - patternFound.tileVertices[0][1][1]) * minimumTileLength
             ]);
         }
     };
 
     // update selected scale index
     const handleProportionChange = (e) => {
-        const proportionIndex = e.target.value;
+        const newProportionIndex = e.target.value;
         if (patternName !== '') {
-            setPattern(patternName, proportionIndex);
+            setPattern(patternName, newProportionIndex, selectedWall);
         }
-    }
+    };
+
+    // 墙面切换处理函数
+    const handleWallChange = (e) => {
+        setSelectedWall(e.target.value);
+    };
 
     // output SVG file
     const exportSVG = () => {
@@ -110,6 +121,21 @@ const Controls = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
             <Box padding={2} sx={{ width: '100%', maxWidth: 600 }}>
+                {/* 墙面选择菜单 */}
+                <FormControl fullWidth sx={{ mb: 2, width: '300px' }}>
+                    <InputLabel>墙面选择</InputLabel>
+                    <Select
+                        value={selectedWall}
+                        label="墙面选择"
+                        onChange={handleWallChange}
+                    >
+                        <MenuItem value="east">East</MenuItem>
+                        <MenuItem value="west">West</MenuItem>
+                        <MenuItem value="north">North</MenuItem>
+                        <MenuItem value="south">South</MenuItem>
+                    </Select>
+                </FormControl>
+
                 {/* Slider to control Grout Width */}
                 <Typography id="grout-width-slider" gutterBottom> Grout Width {OGroutWidth} mm</Typography>
                 <Slider
@@ -117,7 +143,7 @@ const Controls = () => {
                     step={5}
                     min={0}
                     max={40}
-                    onChange={(e, value) => setOGroutWidth(value)}
+                    onChange={(e, value) => setOGroutWidth(value, selectedWall)}
                 />
 
                 {/* Slider to control Horizontal Offset */}
@@ -127,8 +153,9 @@ const Controls = () => {
                     step={5}
                     min={0}
                     max={500}
-                    onChange={(e, value) => setOffsetX(value)}
+                    onChange={(e, value) => setOffsetX(value, selectedWall)}
                 />
+
                 {/* Slider to control Vertical Offset */}
                 <Typography id="vertical-offset-slider" gutterBottom> Vertical Offset {offsetY} mm </Typography>
                 <Slider
@@ -136,7 +163,7 @@ const Controls = () => {
                     step={5}
                     min={0}
                     max={500}
-                    onChange={(e, value) => setOffsetY(value)}  
+                    onChange={(e, value) => setOffsetY(value, selectedWall)}  
                 />
             </Box>       
 
@@ -188,7 +215,6 @@ const Controls = () => {
 
                 </div>
      
-     
                 {/* Form to select layout options */}
                 <FormControl fullWidth sx={{ width: '300px' }}>
                     <InputLabel
@@ -196,12 +222,11 @@ const Controls = () => {
                             backgroundColor: 'white',
                             px: 1,                  
                         }}
-                    
                     >Layout Options</InputLabel>
                     <Select
                         value={layout}
                         label="Layout Options"
-                        onChange={(e) => setLayout(e.target.value)}
+                        onChange={(e) => setLayout(e.target.value, selectedWall)}
                     >
                         <MenuItem value="TopLeft">TopLeft</MenuItem>
                         <MenuItem value="TopRight">TopRight</MenuItem>
