@@ -454,7 +454,12 @@ export const pattern = create((set, get) => ({
         });
         
         get().init(wallType); // Reinitialize the wall
+        // 按当前墙面的 layout 重新计算 anchor
+        const currentLayout = get().walls[wallType].layout;
+        get().setLayout(currentLayout, wallType);
         console.log("Coordinated wall updates completed");
+
+        //TODO: 当其他墙面被更新时，如果该墙面已经初始化 需要重新计算该墙面的布局
     },
 
     // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
