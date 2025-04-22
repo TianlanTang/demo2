@@ -142,8 +142,8 @@ export default function PerspectiveView() {
     const scaledWestH = westSz.h * SCALE;
     
     // Position of the common origin in the container
-    const originX = 500;
-    const originY = 500;
+    const originX = 100;
+    const originY = 50;
 
     return (
         <div style={{ position: 'relative', width: 1900, height: 1700 }}>
