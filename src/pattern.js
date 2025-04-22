@@ -21,6 +21,7 @@ const defaultWallState = {
     tileAreaCovered: 0,
     effectiveSurfaceArea: 0,
     tileCounts: {},
+    isInitialized: false,
     // scale removed from here
 };
 
@@ -162,6 +163,21 @@ export const pattern = create((set, get) => ({
         // Calculate scale first if not already set or if it needs updating
         get().calculateScale(wallType);
         get().generateLayout(wallType);
+        
+        // Mark the wall as initialized if this is its first initialization
+        const wall = get().walls[wallType];
+        if (wall && !wall.isInitialized) {
+            set(state => ({
+                walls: {
+                    ...state.walls,
+                    [wallType]: {
+                        ...state.walls[wallType],
+                        isInitialized: true
+                    }
+                }
+            }));
+            console.log(`Wall ${wallType} marked as initialized`);
+        }
     },
 
     // 更新指定墙面的 anchor 点，参数顺序调整为: newAnchor, wallType(默认 "east")
@@ -452,14 +468,19 @@ export const pattern = create((set, get) => ({
         Object.keys(newWalls).forEach(wall => {
             get().calculateScale(wall);
         });
-        
-        get().init(wallType); // Reinitialize the wall
-        // 按当前墙面的 layout 重新计算 anchor
-        const currentLayout = get().walls[wallType].layout;
-        get().setLayout(currentLayout, wallType);
-        console.log("Coordinated wall updates completed");
 
-        //TODO: 当其他墙面被更新时，如果该墙面已经初始化 需要重新计算该墙面的布局
+        Object.keys(get().walls).forEach(wallType => {
+            const wall = get().walls[wallType];
+            if (wall.isInitialized) {
+                get().init(wallType);
+
+                // 按当前墙面的 layout 重新计算 anchor
+                const currentLayout = wall.layout;
+                get().setLayout(currentLayout, wallType);
+                console.log("Coordinated wall updates completed");
+            }
+        });
+
     },
 
     // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
