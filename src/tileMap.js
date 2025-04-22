@@ -218,15 +218,6 @@ const TileMap = () => {
                         style={{ pointerEvents: 'none' }} // Allow mouse events to pass through
                     />
 
-                    {/* Surface*/}
-                    <polygon
-                        points={surfaceVertices.map(([x, y]) => `${x + shiftX},${y + shiftY}`).join(" ")}
-                        fill="none"
-                        stroke="red"
-                        strokeWidth="1"
-                        style={{ pointerEvents: 'none' }} // Allow mouse events to pass through
-                    />
-
                     {/* texts */}
                     {texts}
                 </svg>

@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import CostInfo from './costInfo';
 import TileHints from './tileHints';
 import MultipleSurface from './multipleSurface';
+import PerspectiveView from './perspectiveView';
 
 function App() {
     useEffect(() => {
@@ -69,11 +70,13 @@ function App() {
                 <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
                 <Link to="/tile-example">Tile Example</Link>
                 <Link to="/multiple-surface" style={{ marginLeft: '10px' }}>Multiple Surface</Link>
+                <Link to="/perspective-view" style={{ marginLeft: '10px' }}>Perspective View</Link>
             </nav>
             <Routes>
                 <Route path="/" element={homeContent} />
                 <Route path="/tile-example" element={<TileExample />} />
                 <Route path="/multiple-surface" element={<MultipleSurface />} />
+                <Route path="/perspective-view" element={<PerspectiveView />} />
             </Routes>
         </Router>
     );

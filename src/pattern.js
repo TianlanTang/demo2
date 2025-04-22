@@ -339,7 +339,7 @@ export const pattern = create((set, get) => ({
             else if (wallType === 'north' || wallType === 'south') {
                 // For north-south pair, maintain horizontal alignment but match width
                 const oppositeDims = getWallDimensions(oppositeWallVertices);
-                const height = dimensions.height; // Use height from the edited wall
+                const height = dimensions.width; // Use width from the edited wall
                 
                 newWalls[opposite] = {
                     ...get().walls[opposite],
@@ -400,22 +400,22 @@ export const pattern = create((set, get) => ({
         // Special handling if floor was directly changed
         if (wallType === 'floor') {
             // Floor dimensions determine the dimensions of all walls
-            const floorWidth = dimensions.width;  // east-west dimension
-            const floorDepth = dimensions.height; // north-south dimension
+            const floorWidth = dimensions.width;  // north-south dimension
+            const floorHeight = dimensions.height; // east-west dimension
             
             // Update east and west walls (they should have the same width as floor depth)
             ['east', 'west'].forEach(wall => {
                 updatedWalls.add(wall);
                 const currentVertices = [...get().walls[wall].OSurfaceVertices];
                 const wallDims = getWallDimensions(currentVertices);
-                const wallHeight = wallDims.height; // Preserve existing height
+                const wallHeight = wallDims.height; // Preserve existing width
                 
                 newWalls[wall] = {
                     ...get().walls[wall],
                     OSurfaceVertices: [
                         [wallDims.minX, wallDims.minY], 
-                        [wallDims.minX + floorDepth, wallDims.minY],
-                        [wallDims.minX + floorDepth, wallDims.minY + wallHeight],
+                        [wallDims.minX + floorHeight, wallDims.minY],
+                        [wallDims.minX + floorHeight, wallDims.minY + wallHeight],
                         [wallDims.minX, wallDims.minY + wallHeight]
                     ]
                 };
