@@ -67,7 +67,7 @@ const SurfaceSVG = ({ direction, wallType, left, top, rot = 0, skew = 0, theta =
     // Render all tiles for this surface
     const renderTiles = () => {
         if (!tiles || tiles.length === 0) {
-            return <text x="50%" y="50%" textAnchor="middle" fill="red">No tiles data</text>;
+            return <text x="50%" y="50%" textAnchor="middle" fill="red">Not initialized</text>;
         }
         
         const polygons = [];
