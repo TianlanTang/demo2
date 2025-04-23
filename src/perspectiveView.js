@@ -1,7 +1,8 @@
 // MultipleSurface.jsx - Three independent SVG version
-import React from 'react';
+import React, {useState} from 'react';
 import { useStore } from 'zustand';
 import { pattern } from './pattern';
+
 
 // Perspective parameters
 const SCALE = 0.7;   // Global scaling
@@ -10,7 +11,8 @@ const SKEW  = 30;    // Skew angle
 const THETA = 30;    // Angle for floor transformation
 
 // Single surface SVG component
-function SurfaceSVG({ wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE = SCALE }) {
+const SurfaceSVG = ({ direction, wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE = SCALE, watch = 0 }) => {
+
     const { walls, tileColors } = useStore(pattern);
     const wall = walls?.[wallType];
     if (!wall) return null;
@@ -23,19 +25,11 @@ function SurfaceSVG({ wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE 
     const height = rawH * _SCALE;
 
     // Determine rotation and translation based on wall type
-    let svgWidth = width;
-    let svgHeight = height;
     let transform = `rotate(${rot}deg) skewX(${skew}deg)`;
     let transformOrigin = '0 0';
 
-    switch(wallType) {
-        case 'east':
-            // For east wall, rotate 90° clockwise
-            break;
-        case 'south':
-            // For south wall, rotate 180°
-            break;
-        case 'west':
+    switch(direction) {
+        case 'left':
             // Transform from bottom right corner
             transformOrigin = `${width}px ${height}px`;
             transform = `skewY(${-skew}deg)`;
@@ -55,9 +49,17 @@ function SurfaceSVG({ wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE 
             const c = c0 * S;
             const d = d0 * S;
             transformOrigin = `0 0`;
-            transform = `matrix(${a}, ${b}, ${c}, ${d}, 0, 0)`;
+            // transform
+            const cx = width / 2;
+            const cy = height / 2;
+            transform = [
+                `matrix(${a}, ${b}, ${c}, ${d}, 0, 0)`,
+                `translate(${cx}px, ${cy}px)`,
+                `rotate(${watch}deg)`,
+                `translate(${-cx}px, ${-cy}px)`
+            ].join(' ');
             break;
-        case 'north':
+        case 'front':
             // Transform from bottom left corner
             transformOrigin = `${0}px ${height}px`;
             transform = `skewY(${skew}deg)`;
@@ -96,8 +98,8 @@ function SurfaceSVG({ wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE 
 
     return (
         <svg
-            width={svgWidth}
-            height={svgHeight}
+            width={width}
+            height={height}
             style={{
                 position: 'absolute',
                 left,
@@ -125,31 +127,106 @@ function SurfaceSVG({ wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE 
 }
 
 export default function PerspectiveView() {
+
     const { walls } = useStore(pattern);
-    if (!walls) return <div>Loading walls data...</div>;
+
+    // State for watch angle
+    const [watch, setWatch] = useState(0);
+    //wall types
+    const walltypes = ['west', 'north', 'east', 'south'];
+    const [wallIdx, setWallIndex] = useState(0);
 
     // Get the original dimensions of each wall
     const sizeOf = w => ({
         w: Math.max(...w.surfaceVertices.map(v => v[0])),
         h: Math.max(...w.surfaceVertices.map(v => v[1]))
     });
-    const westSz  = sizeOf(walls.west);
-    const northSz = sizeOf(walls.north);
-    const floorSz = sizeOf(walls.floor);
-
+    const LeftSz  = sizeOf(walls[walltypes[wallIdx]]);
+    const frontSz = sizeOf(walls[walltypes[(wallIdx+1)%walltypes.length]]);
     // Apply scaling
-    const scaledWestW = westSz.w * SCALE;
-    const scaledWestH = westSz.h * SCALE;
-    
-    // Position of the common origin in the container
+    const scaledLeftW = LeftSz.w * SCALE;
+    const scaledLeftH = LeftSz.h * SCALE;
+    const scaledFrontW = frontSz.w * SCALE;
+
+    // Position of the common origin in the container - more compact positioning
     const originX = 100;
-    const originY = 50;
+    const originY = 100;
+
+    // Calculate floor shift based on current wall dimensions
+    const calcFloorShift = (idx) => {
+        if (idx % 4 == 0) return scaledFrontW;
+
+        // hacky way to slightly adjust the floor shift based on wall index, using some magic numbers
+        if (idx % 4 == 1) return scaledLeftW + 2
+        if (idx % 4 == 2) return scaledFrontW + 1
+        if (idx % 4 == 3) return scaledLeftW -1
+    };
+    
+    // Initialize floor shift with calculated value
+    const [floorShiftX, setFloorShiftX] = useState(calcFloorShift(wallIdx));
+
+    // Arrow navigation handlers
+    const handlePrevWall = () => {
+        const curIdx = (wallIdx - 1 + walltypes.length) % walltypes.length;
+        setWallIndex(curIdx);
+        setWatch(curIdx * 90);
+        setFloorShiftX(calcFloorShift(curIdx));
+    };
+    
+    const handleNextWall = () => {
+        const curIdx = (wallIdx + 1) % walltypes.length;
+        setWallIndex(curIdx);
+        setWatch(curIdx * 90);
+        setFloorShiftX(calcFloorShift(curIdx));
+    };
 
     return (
-        <div style={{ position: 'relative', width: 1900, height: 1700 }}>
+        <div style={{ position: 'relative', width: 1200, height: 1000 }}>
+            {/* Navigation arrows */}
+            <button 
+                onClick={handlePrevWall}
+                style={{
+                    position: 'absolute',
+                    left: '20px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 10,
+                    fontSize: '24px',
+                    padding: '10px 15px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    color: 'white',
+                    border: '1px solid white',
+                    borderRadius: '50%',
+                    cursor: 'pointer'
+                }}
+            >
+                ←
+            </button>
+            
+            <button 
+                onClick={handleNextWall}
+                style={{
+                    position: 'absolute',
+                    right: '20px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 10,
+                    fontSize: '24px',
+                    padding: '10px 15px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    color: 'white',
+                    border: '1px solid white',
+                    borderRadius: '50%',
+                    cursor: 'pointer'
+                }}
+            >
+                →
+            </button>
+            
             {/* West — left wall */}
             <SurfaceSVG
-                wallType="west"
+                direction="left"
+                wallType = {walltypes[wallIdx%walltypes.length]}
                 left={originX} 
                 top={originY}
                 rot={0}
@@ -157,18 +234,21 @@ export default function PerspectiveView() {
             />
             {/* North — right wall */}
             <SurfaceSVG
-                wallType="north"
-                left={originX + scaledWestW}
+                direction="front"
+                wallType={walltypes[(wallIdx+1)%walltypes.length]}
+                left={originX + scaledLeftW}
                 top={originY}
                 rot={0}
                 skew={SKEW}
             />
             {/* Floor — ground */}
             <SurfaceSVG
+                direction="floor"
                 wallType="floor"
-                left={originX + scaledWestW}
-                top={originY + scaledWestH}
+                left={(originX + floorShiftX)}
+                top={(originY + scaledLeftH)}
                 theta={THETA}  
+                watch={watch}
             />
         </div>
     );
