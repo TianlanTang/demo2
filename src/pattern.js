@@ -730,6 +730,11 @@ export const pattern = create((set, get) => ({
         Object.keys(get().walls).forEach(wallType => {
             get().calculateScale(wallType);
         });
+
+        // Initialize each wall
+        Object.keys(get().walls).forEach(wallType => {
+            get().init(wallType);
+        });
         
         console.log("All walls initialized with coordinated dimensions");
     },

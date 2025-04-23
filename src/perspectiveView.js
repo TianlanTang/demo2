@@ -154,7 +154,7 @@ const PerspectiveView = () => {
     const sceneHeight = scaledLeftH;
     // Center the scene
     const originX = (containerWidth  - sceneWidth)  / 2;
-    const originY = (containerHeight - sceneHeight) / 2;
+    const originY = (containerHeight - sceneHeight) / 10;
 
     // Calculate floor shift based on current wall dimensions
     const calcFloorShift = (idx) => {
