@@ -555,9 +555,11 @@ export const pattern = create((set, get) => ({
     },
 
     // 设置当前选中的墙面
-    setSelectedWall: (selectedWall) => {      
+    setSelectedWall: (selectedWall) => {
+        // 更新选中墙面
         set({ selectedWall });
-        get().init(selectedWall);
+        // 延后到下一个事件循环再初始化，避免依赖 console.log 的延迟副作用
+        setTimeout(() => get().init(selectedWall), 0);
     },
 
     // 切换全局的 isWall（注意全局设置时不会影响各固定墙面的 isWall，
@@ -717,11 +719,6 @@ export const pattern = create((set, get) => ({
         // Calculate scale for each wall
         Object.keys(get().walls).forEach(wallType => {
             get().calculateScale(wallType);
-        });
-        
-        // Initialize each wall
-        Object.keys(get().walls).forEach(wallType => {
-            get().init(wallType);
         });
         
         console.log("All walls initialized with coordinated dimensions");
