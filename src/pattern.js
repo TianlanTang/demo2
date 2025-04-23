@@ -280,7 +280,9 @@ export const pattern = create((set, get) => ({
                 [wallType]: { ...state.walls[wallType], patternName, proportionIndex }
             }
         }));
-        get().init(wallType);
+        setTimeout (() => {
+            get().init(wallType);
+        }, 0); // Delay to ensure state updates are applied before re-initializing
         // 按当前墙面的 layout 重新计算 anchor
         const currentLayout = get().walls[wallType].layout;
         get().setLayout(currentLayout, wallType);
@@ -340,7 +342,6 @@ export const pattern = create((set, get) => ({
             if (wallType === 'east' || wallType === 'west') {
                 // For east-west pair, maintain vertical alignment but match width
                 const oppositeDims = getWallDimensions(oppositeWallVertices);
-                const height = dimensions.height; // Use height from the edited wall
                 
                 // The base coordinates are maintained, just adapt width/height
                 newWalls[opposite] = {
@@ -348,23 +349,22 @@ export const pattern = create((set, get) => ({
                     OSurfaceVertices: [
                         [oppositeDims.minX, oppositeDims.minY], 
                         [oppositeDims.minX + dimensions.width, oppositeDims.minY],
-                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + height],
-                        [oppositeDims.minX, oppositeDims.minY + height]
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + dimensions.height],
+                        [oppositeDims.minX, oppositeDims.minY + dimensions.height]
                     ]
                 };
             } 
             else if (wallType === 'north' || wallType === 'south') {
                 // For north-south pair, maintain horizontal alignment but match width
                 const oppositeDims = getWallDimensions(oppositeWallVertices);
-                const height = dimensions.width; // Use width from the edited wall
                 
                 newWalls[opposite] = {
                     ...get().walls[opposite],
                     OSurfaceVertices: [
                         [oppositeDims.minX, oppositeDims.minY], 
                         [oppositeDims.minX + dimensions.width, oppositeDims.minY],
-                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + height],
-                        [oppositeDims.minX, oppositeDims.minY + height]
+                        [oppositeDims.minX + dimensions.width, oppositeDims.minY + dimensions.height],
+                        [oppositeDims.minX, oppositeDims.minY + dimensions.height]
                     ]
                 };
             }
@@ -407,9 +407,9 @@ export const pattern = create((set, get) => ({
                 ...get().walls['floor'],
                 OSurfaceVertices: [
                     [0, 0],
-                    [eastDims.width, 0],
-                    [eastDims.width, northDims.width],
-                    [0, northDims.width]
+                    [northDims.width, 0],
+                    [northDims.width, eastDims.width],
+                    [0, eastDims.width]
                 ]
             };
         }
@@ -466,22 +466,25 @@ export const pattern = create((set, get) => ({
         }));
         
         // Recalculate scale for all affected walls
-        Object.keys(newWalls).forEach(wall => {
-            get().calculateScale(wall);
-        });
+        setTimeout(() => {
+            Object.keys(newWalls).forEach(wall => {
+                get().calculateScale(wall);
+            });
+        }, 0);
 
-        Object.keys(get().walls).forEach(wallType => {
-            const wall = get().walls[wallType];
-            if (wall.isInitialized) {
-                get().init(wallType);
-
-                // 按当前墙面的 layout 重新计算 anchor
-                const currentLayout = wall.layout;
-                get().setLayout(currentLayout, wallType);
-                console.log("Coordinated wall updates completed");
-            }
-        });
-
+        setTimeout(() => {
+            Object.keys(get().walls).forEach(wallType => {
+                const wall = get().walls[wallType];
+                if (wall.isInitialized) {
+                    get().init(wallType);
+    
+                    // 按当前墙面的 layout 重新计算 anchor
+                    const currentLayout = wall.layout;
+                    get().setLayout(currentLayout, wallType);
+                    console.log("Coordinated wall updates completed");
+                }
+            });
+        }, 0); // Delay to ensure state updates are applied before re-initializing}
     },
 
     // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
@@ -552,7 +555,7 @@ export const pattern = create((set, get) => ({
                 [wallType]: { ...defaultWallState, isWall: wallType === "floor" ? false : true }
             }
         }));
-        get().init(wallType);
+        setTimeout(() => get().init(wallType), 0);
     },
 
     // 设置当前选中的墙面
@@ -572,19 +575,23 @@ export const pattern = create((set, get) => ({
     // 设置全局 OGroutWidth，并刷新所有墙面的布局
     setOGroutWidth: (OGroutWidth) => {
         set({ OGroutWidth });
-        Object.keys(get().walls).forEach(wallType => {
-            get().init(wallType);
-        });
+        setTimeout(() => {
+            Object.keys(get().walls).forEach(wallType => {
+                get().init(wallType);
+            });
+        }, 0);
     },
 
     // 全局设置 offsetX，遍历所有墙面进行更新
     setOffsetXGlobal: (offsetX) => {
         const walls = get().walls;
         const updatedWalls = {};
-        Object.keys(walls).forEach(wallType => {
-            updatedWalls[wallType] = { ...walls[wallType], offsetX };
-            get().init(wallType);
-        });
+        setTimeout(() => {  
+            Object.keys(walls).forEach(wallType => {
+                updatedWalls[wallType] = { ...walls[wallType], offsetX };
+                get().init(wallType);
+            });
+        }, 0);
         set({ walls: updatedWalls });
     },
 
@@ -592,10 +599,12 @@ export const pattern = create((set, get) => ({
     setOffsetYGlobal: (offsetY) => {
         const walls = get().walls;
         const updatedWalls = {};
-        Object.keys(walls).forEach(wallType => {
-            updatedWalls[wallType] = { ...walls[wallType], offsetY };
-            get().init(wallType);
-        });
+        setTimeout(() => {
+            Object.keys(walls).forEach(wallType => {
+                updatedWalls[wallType] = { ...walls[wallType], offsetY };
+                get().init(wallType);
+            });
+        }, 0)
         set({ walls: updatedWalls });
     },
 

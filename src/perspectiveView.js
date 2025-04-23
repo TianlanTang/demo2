@@ -146,9 +146,15 @@ const PerspectiveView = () => {
     const scaledLeftH = LeftSz.h * SCALE;
     const scaledFrontW = frontSz.w * SCALE;
 
-    // Position of the common origin in the container - more compact positioning
-    const originX = 100;
-    const originY = 100;
+    // Container dimensions
+    const containerWidth  = 1200;
+    const containerHeight = 1000;
+    // Scene dimensions (left + front)
+    const sceneWidth  = scaledLeftW + scaledFrontW;
+    const sceneHeight = scaledLeftH;
+    // Center the scene
+    const originX = (containerWidth  - sceneWidth)  / 2;
+    const originY = (containerHeight - sceneHeight) / 2;
 
     // Calculate floor shift based on current wall dimensions
     const calcFloorShift = (idx) => {
@@ -180,7 +186,7 @@ const PerspectiveView = () => {
 
     return (
         
-        <div style={{ position: 'relative', width: 1200, height: 1000 }}>
+        <div style={{ position: 'relative', width: containerWidth, height: containerHeight }}>
             {/* Navigation arrows */}
             <button 
                 onClick={handlePrevWall}
