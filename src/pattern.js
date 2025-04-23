@@ -22,6 +22,7 @@ const defaultWallState = {
     effectiveSurfaceArea: 0,
     tileCounts: {},
     isInitialized: false,
+    isWall: true, 
     // scale removed from here
 };
 

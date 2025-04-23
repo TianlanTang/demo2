@@ -5,17 +5,14 @@ import { pattern } from './pattern';
 
 const CostInfo = () => {
 
-    const {
-        tiles,
-        propIndices,
-        tileProps,
-        commonProps,
-        tileAreaCovered,
-        effectiveSurfaceArea,
-        isWall,
-    } = useStore(pattern);
+	const { walls, selectedWall, tileProps, commonProps } = useStore(pattern);
+	const tiles = walls[selectedWall]['tiles'];
+	const isWall = walls[selectedWall]['isWall'];
+	const propIndices = walls[selectedWall]['propIndices'];
+	const tileAreaCovered = walls[selectedWall]['tileAreaCovered'];
+	const effectiveSurfaceArea = walls[selectedWall]['effectiveSurfaceArea'];
 	// required data for cost calculation
-
+	console.log('isWall:', isWall);
 	// Use internal state for modal display and costInfos
 	const [showModal, setShowModal] = useState(false);
 	const [costInfos, setCostInfos] = useState(null);

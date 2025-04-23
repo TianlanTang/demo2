@@ -13,7 +13,6 @@ export const calAnchors_clipper = (
     tileVertices,
     scale,
 ) => {
-    console.log("Start calculating Anchors");
 
     if (!anchor || !connection || !surfaceVertices || !boundingBox || !patternVertices || !holeVertices) {
         throw new Error('Missing data');

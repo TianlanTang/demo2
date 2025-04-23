@@ -178,9 +178,6 @@ const PerspectiveView = () => {
         setFloorShiftX(calcFloorShift(curIdx));
     };
 
-    console.log('wallIdx', wallIdx, 'floorShiftX', floorShiftX, 'scaledLeftW', scaledLeftW, 'scaledFrontW', scaledFrontW);
-
-
     return (
         
         <div style={{ position: 'relative', width: 1200, height: 1000 }}>
