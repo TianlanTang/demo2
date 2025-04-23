@@ -6,13 +6,10 @@ import { pattern } from './pattern';
 
 // Perspective parameters
 const SCALE = 0.7;   // Global scaling
-const ROT   = 30;    // Rotation angle
-const SKEW  = 30;    // Skew angle
 const THETA = 30;    // Angle for floor transformation
 
 // Single surface SVG component
 const SurfaceSVG = ({ direction, wallType, left, top, rot = 0, skew = 0, theta = 0, _SCALE = SCALE, watch = 0 }) => {
-
     const { walls, tileColors } = useStore(pattern);
     const wall = walls?.[wallType];
     if (!wall) return null;
@@ -126,7 +123,7 @@ const SurfaceSVG = ({ direction, wallType, left, top, rot = 0, skew = 0, theta =
     );
 }
 
-export default function PerspectiveView() {
+const PerspectiveView = () => {
 
     const { walls } = useStore(pattern);
 
@@ -141,6 +138,7 @@ export default function PerspectiveView() {
         w: Math.max(...w.surfaceVertices.map(v => v[0])),
         h: Math.max(...w.surfaceVertices.map(v => v[1]))
     });
+
     const LeftSz  = sizeOf(walls[walltypes[wallIdx]]);
     const frontSz = sizeOf(walls[walltypes[(wallIdx+1)%walltypes.length]]);
     // Apply scaling
@@ -154,16 +152,16 @@ export default function PerspectiveView() {
 
     // Calculate floor shift based on current wall dimensions
     const calcFloorShift = (idx) => {
-        if (idx % 4 == 0) return scaledFrontW;
+        if (idx % 4 === 0) return scaledFrontW;
 
         // hacky way to slightly adjust the floor shift based on wall index, using some magic numbers
-        if (idx % 4 == 1) return scaledLeftW + 2
-        if (idx % 4 == 2) return scaledFrontW + 1
-        if (idx % 4 == 3) return scaledLeftW -1
+        if (idx % 4 === 1) return scaledLeftW + 2
+        if (idx % 4 === 2) return scaledFrontW + 1
+        if (idx % 4 === 3) return scaledLeftW -1
     };
     
     // Initialize floor shift with calculated value
-    const [floorShiftX, setFloorShiftX] = useState(calcFloorShift(wallIdx));
+    const [floorShiftX, setFloorShiftX] = useState(scaledLeftW);
 
     // Arrow navigation handlers
     const handlePrevWall = () => {
@@ -180,7 +178,11 @@ export default function PerspectiveView() {
         setFloorShiftX(calcFloorShift(curIdx));
     };
 
+    console.log('wallIdx', wallIdx, 'floorShiftX', floorShiftX, 'scaledLeftW', scaledLeftW, 'scaledFrontW', scaledFrontW);
+
+
     return (
+        
         <div style={{ position: 'relative', width: 1200, height: 1000 }}>
             {/* Navigation arrows */}
             <button 
@@ -230,7 +232,7 @@ export default function PerspectiveView() {
                 left={originX} 
                 top={originY}
                 rot={0}
-                skew={SKEW}
+                skew={THETA}
             />
             {/* North — right wall */}
             <SurfaceSVG
@@ -239,7 +241,7 @@ export default function PerspectiveView() {
                 left={originX + scaledLeftW}
                 top={originY}
                 rot={0}
-                skew={SKEW}
+                skew={THETA}
             />
             {/* Floor — ground */}
             <SurfaceSVG
@@ -253,3 +255,5 @@ export default function PerspectiveView() {
         </div>
     );
 }
+
+export default PerspectiveView;
