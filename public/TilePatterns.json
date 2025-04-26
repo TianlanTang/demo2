@@ -2720,7 +2720,7 @@
         
         {
             "tileClass": 3,
-            "name": "Weave block",
+            "name": "Block Weave",
             "propIndices": [
                 [16, 3, 7]
             ],
