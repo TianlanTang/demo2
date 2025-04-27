@@ -2,8 +2,7 @@ import { create } from 'zustand';
 import { loadPattern, loadScale, loadMinimumTileLength, loadProps } from './tools';
 import { calAnchors_clipper } from './calAnchors_clipper';
 
-// 全局共享的属性 tileProps、commonProps 放到 state 内
-// 默认墙面状态，注意这里不包含全局共享属性，也删除了 isShrinking
+// Place globally shared properties
 const defaultWallState = {
     patternName: "Square Grid Pattern",
     proportionIndex: 0,
@@ -39,12 +38,12 @@ export const pattern = create((set, get) => ({
     isDataLoaded: false,
     minimumTileLength: 50,
     patterns: [],
-    // 全局共享的 tileProps 与 commonProps
+    // Globally shared tileProps and commonProps
     tileProps: [],
     commonProps: [],
     
-    // 固定 5 个墙面，根据墙面类型设置 isWall：
-    // east、south、west、north 为正面（isWall: true），floor 为反面（isWall: false）
+    // Define fixed 5 walls with isWall set by type:
+    // east, south, west, north are front walls (isWall: true), floor is false(isWall: false)
     walls: {
         east: { ...defaultWallState, isWall: true },
         south: { ...defaultWallState, isWall: true },
@@ -53,10 +52,10 @@ export const pattern = create((set, get) => ({
         floor: { ...defaultWallState, isWall: false },
     },
 
-    // 当前选中的墙面
+    // Currently selected wall
     selectedWall: "east",
 
-    // 预加载数据
+    // Preload data
     preloadData: async () => {
         const patterns = await loadPattern();
         const scale = await loadScale();
@@ -73,8 +72,7 @@ export const pattern = create((set, get) => ({
         get().initializeWalls();
     },
 
-    // 根据指定墙面类型生成布局（仅操作该墙面的独立数据）
-    // 参数仅包含 wallType（只有一个参数，保持不变）
+    // Generate layout for a specific wall (only modifies that wall's data)
     generateLayout: (wallType = "east") => {
         const wall = get().walls[wallType];
         if (!wall) {
@@ -129,7 +127,7 @@ export const pattern = create((set, get) => ({
         );
         console.timeEnd("calAnchors");
 
-        // 更新该墙面的数据
+        // Update that wall’s data
         set(state => ({
             walls: {
                 ...state.walls,
@@ -148,7 +146,7 @@ export const pattern = create((set, get) => ({
             }
         }));
 
-        // 检查重复的锚点
+        // Check for duplicate anchors, be used for debugging
         const uniqueAnchors = anchors.filter((a, index, self) =>
             index === self.findIndex(b => b[0] === a[0] && b[1] === a[1])
         );
@@ -158,7 +156,7 @@ export const pattern = create((set, get) => ({
         console.log("Pattern initialized for wall:", wallType);
     },
 
-    // 初始化指定墙面（生成布局），参数只有 wallType（默认 "east"）
+    // Initialize a specific wall (generate layout), parameter wallType (default "east")
     init: (wallType = "east") => {
         console.log("Initializing wall:", wallType);
         // Calculate scale first if not already set or if it needs updating
@@ -181,7 +179,7 @@ export const pattern = create((set, get) => ({
         }
     },
 
-    // 更新指定墙面的 anchor 点，参数顺序调整为: newAnchor, wallType(默认 "east")
+    // Set anchor point for a specific wall, parameters: newAnchor, wallType (default "east")
     setAnchor: (newAnchor, wallType = "east") => {
         set(state => ({
             walls: {
@@ -191,8 +189,8 @@ export const pattern = create((set, get) => ({
         }));
     },
 
-    // 更新指定墙面的 offsetX，并重新初始化
-    // 参数顺序调整为: offsetX, wallType(默认 "east")
+    // Update offsetX for a specific wall and reinitialize
+    // Parameters: offsetX, wallType (default "east")
     setOffsetX: (offsetX, wallType = "east") => {
         set(state => ({
             walls: {
@@ -203,8 +201,8 @@ export const pattern = create((set, get) => ({
         get().init(wallType);
     },
 
-    // 更新指定墙面的 offsetY，并重新初始化
-    // 参数顺序调整为: offsetY, wallType(默认 "east")
+    // Update offsetY for a specific wall and reinitialize
+    // Parameters: offsetY, wallType (default "east")
     setOffsetY: (offsetY, wallType = "east") => {
         set(state => ({
             walls: {
@@ -215,8 +213,8 @@ export const pattern = create((set, get) => ({
         get().init(wallType);
     },
 
-    // 设置指定墙面的 layout 与 anchor
-    // 参数顺序调整为: layout, wallType(默认 "east")
+    // Set layout and anchor for a specific wall
+    // Parameters: layout, wallType (default "east")
     setLayout: (layout, wallType = "east") => {
         const wall = get().walls[wallType];
         if (!wall) {
@@ -271,8 +269,8 @@ export const pattern = create((set, get) => ({
         get().init(wallType);
     },
 
-    // 设置指定墙面的图案参数，并重新初始化
-    // 参数顺序调整为: patternName, proportionIndex, wallType(默认 "east")
+    // Set pattern parameters for a specific wall and reinitialize
+    // Parameters: patternName, proportionIndex, wallType (default "east")
     setPattern: (patternName, proportionIndex, wallType = "east") => {
         set(state => ({
             walls: {
@@ -283,13 +281,13 @@ export const pattern = create((set, get) => ({
         setTimeout (() => {
             get().init(wallType);
         }, 0); // Delay to ensure state updates are applied before re-initializing
-        // 按当前墙面的 layout 重新计算 anchor
+        // Recalculate anchor based on current wall layout
         const currentLayout = get().walls[wallType].layout;
         get().setLayout(currentLayout, wallType);
     },
 
-    // 更新指定墙面的 OSurfaceVertices，同时更新 surfaceVertices
-    // 参数顺序调整为: OSurfaceVertices, wallType(默认 "east")
+    // Update OSurfaceVertices for a specific wall and update surfaceVertices
+    // Parameters: OSurfaceVertices, wallType (default "east")
     setOSurfaceVertices: (OSurfaceVertices, wallType = "east") => {
         console.log(`Updating vertices for ${wallType}`, OSurfaceVertices);
         
@@ -478,7 +476,7 @@ export const pattern = create((set, get) => ({
                 if (wall.isInitialized) {
                     get().init(wallType);
     
-                    // 按当前墙面的 layout 重新计算 anchor
+                    // Recalculate anchor based on current wall layout
                     const currentLayout = wall.layout;
                     get().setLayout(currentLayout, wallType);
                     console.log("Coordinated wall updates completed");
@@ -487,8 +485,8 @@ export const pattern = create((set, get) => ({
         }, 0); // Delay to ensure state updates are applied before re-initializing}
     },
 
-    // 向指定墙面添加新的 OSurfaceVertex，并更新 surfaceVertices
-    // 参数顺序调整为: OSurfaceVerTex, wallType(默认 "east")
+    // Add new OSurfaceVertex to a specific wall and update surfaceVertices
+    // Parameters: OSurfaceVerTex, wallType (default "east")
     addOSurfaceVertex: (OSurfaceVerTex, wallType = "east") => {
         const wall = get().walls[wallType];
         if (!wall) {
@@ -510,8 +508,7 @@ export const pattern = create((set, get) => ({
         
     },
 
-    // 移除指定墙面的所有孔洞数据
-    // 只有一个参数，保持不变
+    // Remove all hole data for a specific wall
     removeHoles: (wallType = "east") => {
         set(state => ({
             walls: {
@@ -525,8 +522,8 @@ export const pattern = create((set, get) => ({
         }));
     },
 
-    // 向指定墙面添加孔洞数据，并更新 holeVertices
-    // 参数顺序调整为: OHoleVertex, wallType(默认 "east")
+    // Add hole data to a specific wall and update holeVertices
+    // Parameters: OHoleVertex, wallType (default "east")
     addOHoleVertices: (OHoleVertex, wallType = "east") => {
         const wall = get().walls[wallType];
         if (!wall) {
@@ -546,8 +543,7 @@ export const pattern = create((set, get) => ({
         }));
     },
 
-    // 重置指定墙面为默认状态，并重新生成布局
-    // 参数保持不变（只有一个参数）
+    // Reset a specific wall to default state and regenerate layout
     reset: (wallType = "east") => {
         set(state => ({
             walls: {
@@ -558,21 +554,21 @@ export const pattern = create((set, get) => ({
         setTimeout(() => get().init(wallType), 0);
     },
 
-    // 设置当前选中的墙面
+    // Set the currently selected wall
     setSelectedWall: (selectedWall) => {
-        // 更新选中墙面
+        // Update selected wall
         set({ selectedWall });
-        // 延后到下一个事件循环再初始化，避免依赖 console.log 的延迟副作用
+        // Delay to the next event loop to avoid side effects of console.log delay
         setTimeout(() => get().init(selectedWall), 0);
     },
 
-    // 切换全局的 isWall（注意全局设置时不会影响各固定墙面的 isWall，
-    // 各墙面 isWall 根据类型自动设置，因此这里仅作为全局标识参考）
+    // Toggle global isWall flag (does not affect individual walls' isWall,
+    // since each wall's isWall is determined by its type; this is for global reference only)
     setIsWall: () => {
         set(state => ({ isWall: !state.isWall }));
     },
 
-    // 设置全局 OGroutWidth，并刷新所有墙面的布局
+    // Set global OGroutWidth and refresh layout for all walls
     setOGroutWidth: (OGroutWidth) => {
         set({ OGroutWidth });
         setTimeout(() => {
@@ -582,7 +578,7 @@ export const pattern = create((set, get) => ({
         }, 0);
     },
 
-    // 全局设置 offsetX，遍历所有墙面进行更新
+    // Set global offsetX for all walls and update
     setOffsetXGlobal: (offsetX) => {
         const walls = get().walls;
         const updatedWalls = {};
@@ -595,7 +591,7 @@ export const pattern = create((set, get) => ({
         set({ walls: updatedWalls });
     },
 
-    // 全局设置 offsetY，遍历所有墙面进行更新
+    // Set global offsetY for all walls and update
     setOffsetYGlobal: (offsetY) => {
         const walls = get().walls;
         const updatedWalls = {};
