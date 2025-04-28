@@ -173,14 +173,14 @@ const PerspectiveView = () => {
     const handlePrevWall = () => {
         const curIdx = (wallIdx - 1 + walltypes.length) % walltypes.length;
         setWallIndex(curIdx);
-        setWatch(curIdx * 90);
+        setWatch(-curIdx * 90);
         setFloorShiftX(calcFloorShift(curIdx));
     };
     
     const handleNextWall = () => {
         const curIdx = (wallIdx + 1) % walltypes.length;
         setWallIndex(curIdx);
-        setWatch(curIdx * 90);
+        setWatch(-curIdx * 90);
         setFloorShiftX(calcFloorShift(curIdx));
     };
 
