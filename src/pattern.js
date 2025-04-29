@@ -28,6 +28,7 @@ const defaultWallState = {
 export const pattern = create((set, get) => ({
     // Add scale as a global property
     scale: 0.2, // Default scale value
+    initScale: 0.2, // Initial scale value
     groutRange: [],
     OGroutWidth: 0,
     tileColors: [
@@ -460,9 +461,13 @@ export const pattern = create((set, get) => ({
             walls: {
                 ...state.walls,
                 ...newWalls
+
             }
         }));
         
+        //  reset scale to init scale
+        set({ scale: get().initScale });
+
         // Recalculate scale for all affected walls
         setTimeout(() => {
             Object.keys(newWalls).forEach(wall => {
@@ -615,7 +620,7 @@ export const pattern = create((set, get) => ({
         const maxY = Math.max(...wall.OSurfaceVertices.map(v => v[1]));
         
         // Calculate new scale based on maxY only
-        const newScale = 600 / maxY;
+        const newScale = Math.max(600 / maxY, get().initScale);
         
         // Only update if new scale is smaller than current scale
         const currentScale = get().scale;
@@ -722,11 +727,9 @@ export const pattern = create((set, get) => ({
             }
         }));
         
-        // Calculate scale for each wall
-        Object.keys(get().walls).forEach(wallType => {
-            get().calculateScale(wallType);
-        });
-
+        // Calculate scale for east wall
+        get().calculateScale("east");
+       
         // Initialize each wall
         Object.keys(get().walls).forEach(wallType => {
             get().init(wallType);
