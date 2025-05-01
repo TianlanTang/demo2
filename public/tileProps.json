@@ -254,6 +254,22 @@
             "Length": 283,
             "TileCost": 73,
             "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 28,
+            "Name": "175 x 525",
+            "Width": 175,
+            "Length": 525,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
+        },
+        {
+            "Idx": 29,
+            "Name": "175 x 525",
+            "Width": 175,
+            "Length": 525,
+            "TileCost": 73,
+            "ContingencyFactor": 1.33
         }
     ]
 }
