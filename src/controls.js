@@ -32,13 +32,13 @@ const Controls = () => {
     const {
         patterns,
         selectedWall,
-        walls
+        walls,
+        OGroutWidth
     } = useStore(pattern);
 
     // 使用 selectedWall 变量替代固定的 'east'
     const patternName = walls[selectedWall]['patternName'];
     const proportionIndex = walls[selectedWall]['proportionIndex'];
-    const OGroutWidth = walls[selectedWall]['OGroutWidth'];
     const offsetX = walls[selectedWall]['offsetX'];
     const offsetY = walls[selectedWall]['offsetY'];
     const layout = walls[selectedWall]['layout'];
