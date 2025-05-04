@@ -60,5 +60,10 @@ export const loadProps = async () => {
     }
 };
 
-
+// calculate distance between two points
+export const getDistance = (p1, p2, scale) => {
+    const [x1, y1] = p1;
+    const [x2, y2] = p2;
+    return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / scale).toFixed(0);
+};
 
