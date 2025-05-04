@@ -53,7 +53,6 @@ const TileHints = () => {
                 .filter(([key, value]) => value[4])   // Skip if tile is not cut
                 .map(([key, value], index) => {
                     // Normalize each tile in the group
-                    console.log(key, value[4]);
                     const normalizedTiles = value[1].map(tile => normalizeTile(tile));
                     
                     return (

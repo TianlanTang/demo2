@@ -49,7 +49,6 @@ export const calAnchors_clipper = (
 
 
         const compositeAllInside = Math.abs(intersectionArea - compositeArea / 10 ** 8) < 1e-5;
-        console.log("compositeAllInside", compositeAllInside);
 
         const compositeAllOutside = intersectionArea === 0;
 
