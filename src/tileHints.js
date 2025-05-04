@@ -81,7 +81,12 @@ const TileHints = () => {
                                 </div>
                             )}
                             <svg width={svgSize} height={svgSize} style={{ display: 'block', marginTop: '5px' }}>
-                                {normalizedTiles.map((normalizedTile, tileIdx) => (
+                                {normalizedTiles.map((normalizedTile, tileIdx) => {
+                                    // Calculate polygon center for text positioning
+                                    const centerX = normalizedTile.reduce((sum, [x]) => sum + x, 0) / normalizedTile.length;
+                                    const centerY = normalizedTile.reduce((sum, [, y]) => sum + y, 0) / normalizedTile.length;
+                                    
+                                    return (
                                     <React.Fragment key={`tile-container-${key}-${tileIdx}`}>
                                         <polygon
                                             key={`tile-${key}-${tileIdx}`}
@@ -97,6 +102,19 @@ const TileHints = () => {
                                             const xMid = (vertex[0] + nextVertex[0]) / 2;
                                             const yMid = (vertex[1] + nextVertex[1]) / 2;
                                             
+                                            // Calculate direction vector from center to edge midpoint
+                                            const dirX = xMid - centerX;
+                                            const dirY = yMid - centerY;
+                                            
+                                            // Normalize and scale for offset
+                                            const length = Math.sqrt(dirX * dirX + dirY * dirY);
+                                            const offsetX = length > 0 ? (dirX / length) * 10 : 0; // 10px offset
+                                            const offsetY = length > 0 ? (dirY / length) * 10 : 0;
+                                            
+                                            // New text position slightly outside the edge
+                                            const textX = xMid + offsetX;
+                                            const textY = yMid + offsetY;
+                                            
                                             // Use original vertices for distance calculation
                                             const origVertex = value[1][tileIdx][i];
                                             const origNextVertex = value[1][tileIdx][nextIndex];
@@ -104,8 +122,8 @@ const TileHints = () => {
                                             return (
                                                 <text
                                                     key={`edge-${key}-${tileIdx}-${i}`}
-                                                    x={xMid}
-                                                    y={yMid}
+                                                    x={textX}
+                                                    y={textY}
                                                     fill="black"
                                                     fontSize="10"
                                                     textAnchor="middle"
@@ -116,7 +134,7 @@ const TileHints = () => {
                                             );
                                         })}
                                     </React.Fragment>
-                                ))}
+                                )})}
                             </svg>
                         </li>
                     );
