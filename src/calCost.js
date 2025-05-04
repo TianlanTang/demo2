@@ -27,8 +27,8 @@ export const calCost = ({
 
     for (let index = 0; index < tileCount.length; index++) {
         const tileProp = tileProps[propIndices[index]];
-        const M2PerTile = (tileProp.Width * tileProp.Length) / 1000000; // convert from mm to m2
-        const tileCost = tileCount[index] * M2PerTile * tileProp.TileCost * tileProp.ContingencyFactor; // cost per tile
+        const M2PerTile = tileProp.Area / 1000000; // convert from mm to m2
+        const tileCost = tileCount[index] * M2PerTile * commonProps.TileCost * commonProps.ContingencyFactor; // cost per tile
         tileNames.push(tileProp.Name);
         tileCosts.push(tileCost);
     }

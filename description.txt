@@ -1,0 +1,15 @@
+Contingency factor:  A multiplier applied to account for unexpected tile breakage and waste. 
+The default is 1.1; increase this value when the layout involves a high number of cuts.
+
+Tiles - material cost: 	The cost you pay for tile material per square meter.
+
+Tiles - laying cost: The labour cost to install tiles per square meter.
+
+Adhesive – cost: The adhesive cost per kilogram.
+
+Adhesive – coverage: How many kg of adhesive you need to cover one square meter of wall tile.
+
+Grout – cost: The cost of grout per kilogram.
+
+Grout – depth / Thickness: The thickness of the grout joint, in millimetres, 
+that you expect to fill between tiles.
