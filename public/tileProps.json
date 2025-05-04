@@ -256,20 +256,28 @@
             "ContingencyFactor": 1.33
         },
         {
-            "Idx": 28,
-            "Name": "175 x 525",
-            "Width": 175,
-            "Length": 525,
-            "TileCost": 73,
+            "Idx": 30,
+            "Name": "100 hexagon",
+            "Width": 100,
+            "Length": 100,
+            "TileCost": 74,
             "ContingencyFactor": 1.33
         },
         {
-            "Idx": 29,
-            "Name": "175 x 525",
-            "Width": 175,
-            "Length": 525,
-            "TileCost": 73,
+            "idx": 31,
+            "Name": "200 hexagon",
+            "Width": 200,
+            "Length": 200,
+            "TileCost": 74,
             "ContingencyFactor": 1.33
+        },
+        {
+            "idx": 32,
+            "Name" : "300 hexagon",
+            "Width" : 300,
+            "Length" : 300,
+            "TileCost" : 74,
+            "ContingencyFactor" : 1.33
         }
     ]
 }
