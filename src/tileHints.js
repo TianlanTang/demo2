@@ -4,7 +4,7 @@ import { pattern } from './pattern';
 import { getDistance } from './tools';
 
 const TileHints = () => {
-    const { walls, selectedWall, scale } = useStore(pattern);
+    const { walls, selectedWall, scale, OGroutWidth } = useStore(pattern);
     const tileCounts = walls[selectedWall]['tileCounts'];
     const [expandedIndices, setExpandedIndices] = useState({});
     
@@ -58,7 +58,102 @@ const TileHints = () => {
                 .map(([key, value], index) => {
                     // Normalize each tile in the group
                     const normalizedTiles = value[1].map(tile => normalizeTile(tile));
-                    
+                    return (
+                        <li key={`complete-${index}`}>
+                            <strong>counts: </strong> {value[0]}
+                            <br />
+                            <strong>edges length: </strong> {value[2]}
+                            <br />
+                            <strong>Indices: </strong>
+                            <span 
+                                onClick={() => setExpandedIndices(prev => ({ ...prev, [key]: !prev[key] }))}
+                                style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+                            >
+                                {expandedIndices[key] ? 'Hide Indices' : 'Show Indices'}
+                            </span>
+                            {expandedIndices[key] && (
+                                <div style={{ marginTop: '5px' }}>
+                                    {value[3].reduce((acc, curr, i) => {
+                                        if (i % 5 === 0 && i !== 0) {
+                                            acc.push(<br key={`br-${i}`} />);
+                                        }
+                                        acc.push(curr);
+                                        if (i !== value[3].length - 1) {
+                                            acc.push(', ');
+                                        }
+                                        return acc;
+                                    }, [])}
+                                </div>
+                            )}
+                            <svg width={svgSize} height={svgSize} style={{ display: 'block', marginTop: '5px' }}>
+                                {normalizedTiles.map((normalizedTile, tileIdx) => {
+                                    // Calculate polygon center for text positioning
+                                    const centerX = normalizedTile.reduce((sum, [x]) => sum + x, 0) / normalizedTile.length;
+                                    const centerY = normalizedTile.reduce((sum, [, y]) => sum + y, 0) / normalizedTile.length;
+                                    
+                                    return (
+                                    <React.Fragment key={`tile-container-${key}-${tileIdx}`}>
+                                        <polygon
+                                            key={`tile-${key}-${tileIdx}`}
+                                            points={normalizedTile.map(([x, y]) => `${x},${y}`).join(' ')}
+                                            fill="#2196F3"
+                                            stroke="black"
+                                            strokeWidth="0.5"
+                                        />
+                                        {/* Display distance between vertices */}
+                                        {normalizedTile.map((vertex, i) => {
+                                            const nextIndex = (i + 1) % normalizedTile.length;
+                                            const nextVertex = normalizedTile[nextIndex];
+                                            const xMid = (vertex[0] + nextVertex[0]) / 2;
+                                            const yMid = (vertex[1] + nextVertex[1]) / 2;
+                                            
+                                            // Calculate direction vector from center to edge midpoint
+                                            const dirX = xMid - centerX;
+                                            const dirY = yMid - centerY;
+                                            
+                                            // Normalize and scale for offset
+                                            const length = Math.sqrt(dirX * dirX + dirY * dirY);
+                                            const offsetX = length > 0 ? (dirX / length) * 10 : 0; // 10px offset
+                                            const offsetY = length > 0 ? (dirY / length) * 10 : 0;
+                                            
+                                            // New text position slightly outside the edge
+                                            const textX = xMid + offsetX;
+                                            const textY = yMid + offsetY;
+                                            
+                                            // Use original vertices for distance calculation
+                                            const origVertex = value[1][tileIdx][i];
+                                            const origNextVertex = value[1][tileIdx][nextIndex];
+                                            
+                                            return (
+                                                <text
+                                                    key={`edge-${key}-${tileIdx}-${i}`}
+                                                    x={textX}
+                                                    y={textY}
+                                                    fill="black"
+                                                    fontSize="10"
+                                                    textAnchor="middle"
+                                                    alignmentBaseline="middle"
+                                                >
+                                                    {getDistance(origVertex, origNextVertex, scale)}
+                                                </text>
+                                            );
+                                        })}
+                                    </React.Fragment>
+                                )})}
+                            </svg>
+                        </li>
+                    );
+                })}
+            </ul>
+            <h3>
+                Tiles under {OGroutWidth} grout width, Total: {Object.values(tileCounts).filter((value) => !value[4]).reduce((sum, value) => sum + value[0], 0)}
+            </h3>
+            <ul>
+                {Object.entries(tileCounts)
+                .filter(([key, value]) => !value[4])   
+                .map(([key, value], index) => {
+                    // Normalize each tile in the group
+                    const normalizedTiles = value[1].map(tile => normalizeTile(tile));
                     return (
                         <li key={`complete-${index}`}>
                             <strong>counts: </strong> {value[0]}
