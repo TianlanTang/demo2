@@ -49,8 +49,11 @@ const TileHints = () => {
         <div style={{ width: '350px', maxHeight: '600px', overflowY: 'auto', fontSize: '12px' }}>
             <h3>Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)}</h3>
             <ul>
-                {Object.entries(tileCounts).map(([key, value], index) => {
+                {Object.entries(tileCounts)
+                .filter(([key, value]) => value[4])   // Skip if tile is not cut
+                .map(([key, value], index) => {
                     // Normalize each tile in the group
+                    console.log(key, value[4]);
                     const normalizedTiles = value[1].map(tile => normalizeTile(tile));
                     
                     return (
