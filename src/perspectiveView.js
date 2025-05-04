@@ -161,9 +161,9 @@ const PerspectiveView = () => {
         if (idx % 4 === 0) return scaledFrontW;
 
         // hacky way to slightly adjust the floor shift based on wall index, using some magic numbers
-        if (idx % 4 === 1) return scaledLeftW + 2
-        if (idx % 4 === 2) return scaledFrontW + 1
-        if (idx % 4 === 3) return scaledLeftW -1
+        if (idx % 4 === 1) return scaledLeftW - 2
+        if (idx % 4 === 2) return scaledFrontW
+        if (idx % 4 === 3) return scaledLeftW + 2
     };
     
     // Initialize floor shift with calculated value
