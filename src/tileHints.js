@@ -47,7 +47,11 @@ const TileHints = () => {
 
     return (
         <div style={{ width: '350px', maxHeight: '600px', overflowY: 'auto', fontSize: '12px' }}>
-            <h3>Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)}</h3>
+            <h3>
+                Total Tiles: {Object.values(tileCounts).reduce((sum, value) => sum + value[0], 0)} 
+                <br />
+                Cut Tiles: {Object.values(tileCounts).filter((value) => value[4]).reduce((sum, value) => sum + value[0], 0)}
+            </h3>
             <ul>
                 {Object.entries(tileCounts)
                 .filter(([key, value]) => value[4])   // Skip if tile is not cut
