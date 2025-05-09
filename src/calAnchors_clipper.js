@@ -47,7 +47,9 @@ export const calAnchors_clipper = (
         const compositeArea = Math.abs(ClipperLib.Clipper.Area(compositePath));
         const intersectionArea = areaFromPaths(compositeIntersection);
 
-        const compositeAllInside = Math.abs(intersectionArea - compositeArea) < 1e-5;
+
+        const compositeAllInside = Math.abs(intersectionArea - compositeArea / 10 ** 8) < 1e-5;
+
         const compositeAllOutside = intersectionArea === 0;
 
         if (!compositeAllOutside) {
@@ -87,7 +89,7 @@ export const calAnchors_clipper = (
                     }).join(',');
                     const currentId = globalTileId++;
                     if (!tileCounts[tileVerticesKey]) {
-                        tileCounts[tileVerticesKey] = [0, tileVertices, edgeLengths, []]; // Added array for ids
+                        tileCounts[tileVerticesKey] = [0, tileVertices, edgeLengths, [], false]; // Added array for ids, the last represents the tile is cut or not
                     }
                     tileCounts[tileVerticesKey][0] += 1; // Increment count
                     tileCounts[tileVerticesKey][3].push(currentId); // Append current id to array
@@ -101,7 +103,9 @@ export const calAnchors_clipper = (
                     const tilePath = convertPolygon(tilePoly);
                     const tileIntersection = clipPolygon(tilePath, effectiveSurfacePaths);
                     const tileIntersectionArea = areaFromPaths(tileIntersection);
+                    const tileArea = Math.abs(ClipperLib.Clipper.Area(tilePath));
                     const draw = tileIntersectionArea > 0;
+                    const isCut = (tileArea / 10 ** 8 - tileIntersectionArea ) > 1e-5; // Check if the tile is cut
                     if (draw) {
                         const clippedTile = tileIntersection.map(path =>
                             path.map(({ X, Y }) => [X / SCALE, Y / SCALE])
@@ -144,7 +148,7 @@ export const calAnchors_clipper = (
                             .join(',');
                         const currentId = globalTileId++;
                         if (!tileCounts[tileVerticesKey]) {
-                            tileCounts[tileVerticesKey] = [0, tileVertices, intersectEdgeLengths, []]; // Added array for ids
+                            tileCounts[tileVerticesKey] = [0, tileVertices, intersectEdgeLengths, [], isCut]; // Added array for ids
                         }
                         tileCounts[tileVerticesKey][0] += 1;
                         tileCounts[tileVerticesKey][3].push(currentId);

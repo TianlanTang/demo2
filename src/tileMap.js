@@ -1,6 +1,7 @@
 import { pattern } from './pattern';
 import { useStore } from 'zustand';
 import { useState, useEffect } from 'react';
+import { getDistance} from './tools';
 
 const TileMap = () => {
     console.log("TileMap Ready to Load");
@@ -30,12 +31,7 @@ const TileMap = () => {
     // tile that is currently hovered
     const [hoveredTile, setHoveredTile] = useState({ groupIndex: null, tileIndex: null });
 
-    // calculate distance between two points
-    const getDistance = (p1, p2) => {
-        const [x1, y1] = p1;
-        const [x2, y2] = p2;
-        return (Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) / scale).toFixed(0);
-    };
+
 
     useEffect(() => {
         if (animate) {
@@ -128,7 +124,7 @@ const TileMap = () => {
                             textAnchor="middle"
                             alignmentBaseline="middle"
                         >
-                            {getDistance(tile[i], tile[j])}
+                            {getDistance(tile[i], tile[j], scale)}
                         </text>
                     );
                 }

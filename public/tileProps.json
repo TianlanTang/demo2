@@ -12,7 +12,9 @@
         "GroutCostPerBag": 25,
         "LayAndGroutCost": 65,
         "AdhensiveBagSize": 15,
-        "AdhensiveCostPerBag": 60
+        "AdhensiveCostPerBag": 60,
+        "TileCost": 55,
+        "ContingencyFactor": 1.1
     },
     "TileProps": [
         {
@@ -20,264 +22,238 @@
             "Name": "50 x 50",
             "Width": 50,
             "Length": 50,
-            "TileCost": 51,
-            "ContingencyFactor": 1.11
+            "Area": 2500
         },
         {
             "Idx": 1,
             "Name": "75 x 75",
             "Width": 75,
             "Length": 75,
-            "TileCost": 52,
-            "ContingencyFactor": 1.12
+            "Area": 5625
         },
         {
             "Idx": 2,
             "Name": "100 x 100",
             "Width": 100,
             "Length": 100,
-            "TileCost": 53,
-            "ContingencyFactor": 1.13
+            "Area": 10000
         },
         {
             "Idx": 3,
             "Name": "150 x 150",
             "Width": 150,
             "Length": 150,
-            "TileCost": 54,
-            "ContingencyFactor": 1.14
+            "Area": 22500
         },
         {
             "Idx": 4,
             "Name": "200 x 200",
             "Width": 200,
             "Length": 200,
-            "TileCost": 55,
-            "ContingencyFactor": 1.15
+            "Area": 40000
         },
         {
             "Idx": 5,
             "Name": "300 x 300",
             "Width": 300,
             "Length": 300,
-            "TileCost": 56,
-            "ContingencyFactor": 1.16
+            "Area": 90000
         },
         {
             "Idx": 6,
             "Name": "400 x 400",
             "Width": 400,
             "Length": 400,
-            "TileCost": 57,
-            "ContingencyFactor": 1.17
+            "Area": 160000
         },
         {
             "Idx": 7,
             "Name": "450 x 450",
             "Width": 450,
             "Length": 450,
-            "TileCost": 58,
-            "ContingencyFactor": 1.18
+            "Area": 202500
         },
         {
             "Idx": 8,
             "Name": "600 x 600",
             "Width": 600,
             "Length": 600,
-            "TileCost": 59,
-            "ContingencyFactor": 1.19
+            "Area": 360000
         },
         {
             "Idx": 9,
             "Name": "900 x 900",
             "Width": 900,
             "Length": 900,
-            "TileCost": 60,
-            "ContingencyFactor": 1.20
+            "Area": 810000
         },
         {
             "Idx": 10,
             "Name": "75 x 150",
             "Width": 75,
             "Length": 150,
-            "TileCost": 61,
-            "ContingencyFactor": 1.21
+            "Area": 11250
         },
         {
             "Idx": 11,
             "Name": "100 x 200",
             "Width": 100,
             "Length": 200,
-            "TileCost": 62,
-            "ContingencyFactor": 1.22
+            "Area": 20000
         },
         {
             "Idx": 12,
             "Name": "150 x 300",
             "Width": 150,
             "Length": 300,
-            "TileCost": 63,
-            "ContingencyFactor": 1.23
+            "Area": 45000
         },
         {
             "Idx": 13,
             "Name": "200 x 400",
             "Width": 200,
             "Length": 400,
-            "TileCost": 64,
-            "ContingencyFactor": 1.24
+            "Area": 80000
         },
         {
             "Idx": 14,
             "Name": "300 x 600",
             "Width": 300,
             "Length": 600,
-            "TileCost": 65,
-            "ContingencyFactor": 1.25
+            "Area": 180000
         },
         {
             "Idx": 15,
             "Name": "200 x 300",
             "Width": 200,
             "Length": 300,
-            "TileCost": 66,
-            "ContingencyFactor": 1.26
+            "Area": 60000
         },
         {
             "Idx": 16,
             "Name": "300 x 450",
             "Width": 300,
             "Length": 450,
-            "TileCost": 67,
-            "ContingencyFactor": 1.27
+            "Area": 135000
         },
         {
             "Idx": 17,
             "Name": "100 x 300",
             "Width": 100,
             "Length": 300,
-            "TileCost": 68,
-            "ContingencyFactor": 1.28
+            "Area": 30000
         },
         {
             "Idx": 18,
             "Name": "150 x 450",
             "Width": 150,
             "Length": 450,
-            "TileCost": 69,
-            "ContingencyFactor": 1.29
+            "Area": 67500
         },
         {
             "Idx": 19,
             "Name": "75 x 300",
             "Width": 75,
             "Length": 300,
-            "TileCost": 70,
-            "ContingencyFactor": 1.30
+            "Area": 22500
         },
         {
             "Idx": 20,
             "Name": "75 x 450",
             "Width": 75,
             "Length": 450,
-            "TileCost": 71,
-            "ContingencyFactor": 1.31
+            "Area": 33750
         },
         {
             "Idx": 21,
             "Name": "150 x 600",
             "Width": 150,
             "Length": 600,
-            "TileCost": 72,
-            "ContingencyFactor": 1.32
+            "Area": 90000
         },
         {
             "Idx": 22,
             "Name": "150 x 900",
             "Width": 150,
             "Length": 900,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 135000
         },
         {
             "Idx": 23,
             "Name": "400 x 600",
             "Width": 400,
             "Length": 600,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 240000
         },
         {
             "Idx": 24,
             "Name": "175 x 175",
             "Width": 175,
             "Length": 175,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 30625
         },
         {
             "Idx": 25,
             "Name": "175 x 525",
-            "Width": 125,
-            "Length": 375,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Width": 175,
+            "Length": 525,
+            "Area": 91875
         },
         {
             "Idx": 26,
             "Name": "525 x 525",
-            "Width": 375,
-            "Length": 375,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Width": 575,
+            "Length": 575,
+            "Area": 330625
         },
         {
             "Idx": 27,
             "Name": "400 x 75",
             "Width": 400,
             "Length": 75,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 30000
         },
         {
             "Idx": 28,
             "Name": "200 x 100 chevron",
             "Width": 100,
             "Length": 200,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 17320
         },
         {
             "Idx": 29,
             "Name": "283 x 100 chevron",
             "Width": 100,
             "Length": 283,
-            "TileCost": 73,
-            "ContingencyFactor": 1.33
+            "Area": 20000
         },
         {
             "Idx": 30,
             "Name": "100 hexagon",
             "Width": 100,
             "Length": 100,
-            "TileCost": 74,
-            "ContingencyFactor": 1.33
+            "Area": 25981
         },
         {
             "idx": 31,
             "Name": "200 hexagon",
             "Width": 200,
             "Length": 200,
-            "TileCost": 74,
-            "ContingencyFactor": 1.33
+            "Area": 103923
         },
         {
             "idx": 32,
-            "Name" : "300 hexagon",
-            "Width" : 300,
-            "Length" : 300,
-            "TileCost" : 74,
-            "ContingencyFactor" : 1.33
+            "Name": "300 hexagon",
+            "Width": 300,
+            "Length": 300,
+            "Area": 233827
+        },
+        {
+            "Idx": 33,
+            "Name": "87.5 x 525",
+            "Width": 87.5,
+            "Length": 525,
+            "Area": 45937.5
         }
     ]
 }
