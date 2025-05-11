@@ -17,12 +17,37 @@ export const calAnchors_clipper = (
     if (!anchor || !connection || !surfaceVertices || !boundingBox || !patternVertices || !holeVertices) {
         throw new Error('Missing data');
     }
-
-    // Convert surface and holes to Clipper format
+    console.log("holeVertices: ", holeVertices);
+    console.log("surfaceVertices: ", surfaceVertices);    // Convert surface and holes to Clipper format
     const surfacePath = convertPolygon(surfaceVertices);
     const holePaths = holeVertices.map(hole => convertPolygon(hole));
+      // 直接计算表面积
+    const surfaceArea = Math.abs(ClipperLib.Clipper.Area(surfacePath)) / (SCALE * SCALE);
+    console.log("原始表面积:", surfaceArea);
+    
+    // 计算所有孔洞与表面相交的面积
+    let totalIntersectionHoleArea = 0;
+    for (const holePath of holePaths) {
+        // 计算每个孔洞与表面的交集
+        const holeIntersection = clipPolygon(holePath, [surfacePath]);
+        
+        // 如果有交集，则计算交集面积
+        if (holeIntersection && holeIntersection.length > 0) {
+            const intersectionArea = areaFromPaths(holeIntersection);
+            totalIntersectionHoleArea += intersectionArea;
+            console.log("孔洞与表面相交的面积:", intersectionArea);
+        } else {
+            console.log("孔洞完全在表面外部，没有相交区域");
+        }
+    }
+    console.log("总孔洞相交面积:", totalIntersectionHoleArea);
+    
+    // 有效表面积 = 表面积 - 孔洞相交面积
+    const effectiveSurfaceArea = surfaceArea - totalIntersectionHoleArea;
+    console.log("计算的有效表面积:", effectiveSurfaceArea);
+    
+    // 仍然保留effectiveSurfacePaths用于其他计算
     const effectiveSurfacePaths = computeEffectiveSurfacePaths(surfacePath, holePaths);
-    const effectiveSurfaceArea = areaFromPaths(effectiveSurfacePaths); // Calculate effective surface area
 
     const anchors = [];
     const queue = [[anchor[0], anchor[1]]];
@@ -192,8 +217,8 @@ export const calAnchors_clipper = (
     const realAreaCovered = Number((areaCovered / (scale * scale) / 1000000).toFixed(2)); 
     const realEffectiveSurfaceArea = Number((effectiveSurfaceArea / (scale * scale) / 1000000).toFixed(2));
     
-    console.log("Real area covered (m²):", realAreaCovered);
-    console.log("Real effective surface area (m²):", realEffectiveSurfaceArea);
+    console.log("areaCovered:", areaCovered);
+    console.log("EffectiveSurfaceArea:", effectiveSurfaceArea);
 
     return {
         anchors, 
