@@ -14,7 +14,9 @@
         "AdhensiveBagSize": 15,
         "AdhensiveCostPerBag": 60,
         "TileCost": 55,
-        "ContingencyFactor": 1.1
+        "ContingencyFactor": 1.1,
+        "SurfacePreparationGeneral": 0,
+        "SurfacePreparationWaterProof": 0.1
     },
     "TileProps": [
         {

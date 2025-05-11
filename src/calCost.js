@@ -9,6 +9,10 @@ export const calCost = ({
 }) => {
     const tileCount = new Array(tiles[0].length).fill(0);
 
+    // calculate the preapartion cost 
+    const preparationCostGeneral = commonProps.SurfacePreparationGeneral * effectiveSurfaceArea; // cost of preparation
+    const preparationCostWaterProof = commonProps.SurfacePreparationWaterProof * effectiveSurfaceArea; // cost of waterproofing
+
     for (const tileGroup of tiles) {
         for (let index = 0; index < tileGroup.length; index++) {
             const tile = tileGroup[index];
@@ -57,6 +61,8 @@ export const calCost = ({
     return {
         costInfos: {
             totalCosts: tileCosts.reduce((acc, cost) => acc + cost, 0) + tileLayAndGroutCosts + groutCostOnBag + adhensiveCostOnBag,
+            preparationCostGeneral,
+            preparationCostWaterProof,
             effectiveSurfaceArea,
             tileAreaCovered,
             tileSummary, 
