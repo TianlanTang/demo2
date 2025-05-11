@@ -59,8 +59,11 @@ export const calAnchors_clipper = (
                 // eslint-disable-next-line no-loop-func
                 compositeTileAnchors = tileVertices.map(tile => {
                     const tilePoly = tile.map(([dx, dy]) => [ax + dx, ay + dy]);
+                    const tilePath = convertPolygon(tilePoly);
                     const minX = Math.min(...tilePoly.map(([x]) => x));
                     const minY = Math.min(...tilePoly.map(([_, y]) => y));
+                    const tileArea = Math.abs(ClipperLib.Clipper.Area(tilePath) / 10 ** 8 );;
+                    localAreaCovered += tileArea; // Increment local area covered
                     const tileVertices = [tilePoly.map(([x, y]) => {
                         const alignedPoint = [x - minX, y - minY];
                         const pointPath = convertPolygon([alignedPoint]);
