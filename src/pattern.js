@@ -9,8 +9,17 @@ const defaultWallState = {
     propIndices: [],
     OSurfaceVertices: [],
     surfaceVertices: [],
-    OHoleVertices: [],
-    holeVertices: [],
+    OHoleVertices: [
+
+    ],
+    holeVertices: [
+        [
+            [200, 200],
+            [450, 200],
+            [450, 600],
+            [200, 600]
+        ]
+    ],
     anchor: [0, 0],
     offsetX: 0,
     offsetY: 0,
