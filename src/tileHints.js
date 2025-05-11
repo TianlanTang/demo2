@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useStore } from 'zustand';
 import { pattern } from './pattern';
 import { getDistance } from './tools';
-
 
 const STANDARD_SIZE = 200;   // size of each normalized tile mini‑canvas
 const PADDING       = 20;    // internal padding inside each mini‑canvas
@@ -68,7 +67,7 @@ const TileHints = () => {
         scale={scale}
       />
 
-      {/* un‑cut tiles */}
+      {/* uncut tiles */}
       <h3>
         Tiles under {OGroutWidth} grout width, Total:&nbsp;
         {Object.values(tileCounts).filter(v => !v[4])
@@ -86,7 +85,6 @@ const TileHints = () => {
     </div>
   );
 };
-
 
 const TileGroup = ({
   tileCounts,
